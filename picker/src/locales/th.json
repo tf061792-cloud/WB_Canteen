@@ -1,0 +1,61 @@
+{
+  "common": {
+    "appName": "ระบบหยิบสินค้า WB",
+    "orders": "รายการคำสั่งซื้อ",
+    "settings": "ตั้งค่า",
+    "logout": "ออกจากระบบ",
+    "loading": "กำลังโหลด...",
+    "noData": "ไม่มีคำสั่งซื้อ",
+    "confirm": "ยืนยัน",
+    "cancel": "ยกเลิก",
+    "save": "บันทึก",
+    "search": "ค้นหา",
+    "refresh": "รีเฟรช",
+    "customer": "ข้อมูลลูกค้า",
+    "remark": "หมายเหตุ",
+    "selectAll": "เลือกทั้งหมด",
+    "items": "รายการ",
+    "total": "ทั้งหมด",
+    "weight": "น้ำหนัก",
+    "check": "เลือก"
+  },
+  "order": {
+    "orderList": "รายการคำสั่งซื้อ",
+    "orderNo": "คำสั่งซื้อ",
+    "customer": "ลูกค้า",
+    "orderAmount": "ยอดรวม",
+    "orderStatus": "สถานะ",
+    "orderTime": "เวลาสั่งซื้อ",
+    "pickOrder": "เริ่มหยิบสินค้า",
+    "completePick": "เสร็จสิ้นการหยิบ",
+    "productList": "รายการสินค้า",
+    "productName": "ชื่อสินค้า",
+    "productNameTh": "ชื่อภาษาไทย",
+    "quantity": "จำนวนสั่ง",
+    "actualQty": "จำนวนจริง",
+    "unit": "หน่วย",
+    "spec": "ขนาด",
+    "price": "ราคา",
+    "total": "รวม",
+    "remark": "ใส่หมายเหตุ (ไม่บังคับ)",
+    "scanBarcode": "สแกนบาร์โค้ด",
+    "inputProductName": "ค้นหาหมายเลขคำสั่งซื้อหรือลูกค้า",
+    "picking": "หยิบแล้ว",
+    "completed": "เสร็จสิ้น",
+    "pending": "รอหยิบ",
+    "confirmSubmit": "หลังจากส่ง สถานะคำสั่งซื้อจะเปลี่ยนเป็น 'จัดส่งแล้ว'"
+  },
+  "product": {
+    "name": "ชื่อสินค้า",
+    "nameTh": "ชื่อภาษาไทย"
+  },
+  "picker": {
+    "actualQty": "จำนวนจริง"
+  },
+  "language": {
+    "language": "ภาษา",
+    "zh": "中文",
+    "en": "English",
+    "th": "ไทย"
+  }
+}

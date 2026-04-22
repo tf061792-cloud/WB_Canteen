@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WB 食堂食材下单系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: white;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    .subtitle {
+      color: rgba(255,255,255,0.9);
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+    }
+    .cards {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 50px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      min-width: 200px;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    }
+    .card-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+    }
+    .card-title {
+      font-size: 1.5rem;
+      color: #333;
+      font-weight: 600;
+    }
+    .card-desc {
+      color: #666;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+    .footer {
+      margin-top: 50px;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>WB 食堂食材下单系统</h1>
+    <p class="subtitle">单一商户 B2C 电商（COD货到付款）</p>
+    
+    <div class="cards">
+      <a href="/client/" class="card">
+        <div class="card-icon">📱</div>
+        <div class="card-title">用户端 H5</div>
+        <div class="card-desc">商品浏览 · 购物车 · 下单</div>
+      </a>
+      
+      <a href="/admin/" class="card">
+        <div class="card-icon">💻</div>
+        <div class="card-title">管理端 PC</div>
+        <div class="card-desc">订单管理 · 商品管理</div>
+      </a>
+      
+      <a href="/picker/" class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">配货端 H5</div>
+        <div class="card-desc">订单配货 · 库存核对</div>
+      </a>
+    </div>
+    
+    <div class="footer">
+      <p>测试账号：user001 / test123 | admin / admin123 | picker / admin123</p>
+    </div>
+  </div>
+</body>
+</html>

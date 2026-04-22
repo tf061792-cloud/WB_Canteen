@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>配货端</title>
+  </head>
+  <body>
+    <div id="root">
+      <div id="loading" style="padding: 20px; text-align: center; color: #666;">
+        页面加载中...
+      </div>
+    </div>
+    <script>
+      window.addEventListener('error', function(e) {
+        console.error('捕获错误:', e.error);
+        document.body.innerHTML = '<div style="padding: 20px; color: red;"><h3>JavaScript 错误</h3><pre>' + (e.error?.stack || e.message) + '</pre></div>';
+      });
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

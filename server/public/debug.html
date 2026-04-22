@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试页面</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .log {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #00ff00;
+            padding-left: 10px;
+        }
+        .error {
+            color: #ff0000;
+            border-left-color: #ff0000;
+        }
+        .warn {
+            color: #ffff00;
+            border-left-color: #ffff00;
+        }
+        .info {
+            color: #00ffff;
+            border-left-color: #00ffff;
+        }
+        #logs {
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        button {
+            background: #333;
+            color: #fff;
+            border: 1px solid #666;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 客户端调试页面</h1>
+    <div>
+        <button onclick="runDiagnostics()">运行诊断</button>
+        <button onclick="testResources()">测试资源加载</button>
+        <button onclick="clearLogs()">清除日志</button>
+    </div>
+    <div id="logs"></div>
+
+    <script>
+        const logs = document.getElementById('logs');
+        
+        function log(msg, type = 'log') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logs.appendChild(div);
+            console.log(msg);
+        }
+        
+        function clearLogs() {
+            logs.innerHTML = '';
+        }
+        
+        // 捕获错误
+        window.onerror = function(msg, url, line, col, error) {
+            log(`错误: ${msg} at ${url}:${line}:${col}`, 'error');
+            if (error && error.stack) {
+                log(`堆栈: ${error.stack}`, 'error');
+            }
+            return false;
+        };
+        
+        window.onunhandledrejection = function(event) {
+            log(`未处理的Promise拒绝: ${event.reason}`, 'error');
+        };
+        
+        function runDiagnostics() {
+            clearLogs();
+            log('开始诊断...', 'info');
+            
+            // 检查基本环境
+            log(`页面URL: ${window.location.href}`);
+            log(`User Agent: ${navigator.userAgent.substring(0, 100)}...`);
+            
+            // 检查 root 元素
+            const root = document.getElementById('root');
+            if (root) {
+                log(`root 元素存在 ✓`, 'info');
+                log(`root 子元素数: ${root.childNodes.length}`);
+                log(`root HTML: ${root.innerHTML.substring(0, 200)}`);
+            } else {
+                log('root 元素不存在 ❌', 'error');
+            }
+            
+            // 检查 React
+            setTimeout(() => {
+                if (window.React) {
+                    log(`React 已加载 ✓ 版本: ${window.React.version}`, 'info');
+                } else {
+                    log('React 未加载 ❌', 'error');
+                }
+                
+                if (window.ReactDOM) {
+                    log('ReactDOM 已加载 ✓', 'info');
+                } else {
+                    log('ReactDOM 未加载 ❌', 'error');
+                }
+                
+                // 再次检查 root
+                const rootAfter = document.getElementById('root');
+                if (rootAfter && rootAfter.childNodes.length > 0) {
+                    log(`root 有内容 ✓ 子元素数: ${rootAfter.childNodes.length}`, 'info');
+                } else {
+                    log('root 仍为空 ❌ React 可能未渲染', 'error');
+                }
+            }, 2000);
+        }
+        
+        async function testResources() {
+            clearLogs();
+            log('测试资源加载...', 'info');
+            
+            const resources = [
+                '/@vite/client',
+                '/src/main.jsx',
+                '/src/App.jsx',
+                '/node_modules/.vite/deps/react.js'
+            ];
+            
+            for (const url of resources) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const text = await response.text();
+                        log(`${url} ✓ (${text.length} bytes)`, 'info');
+                    } else {
+                        log(`${url} ❌ HTTP ${response.status}`, 'error');
+                    }
+                } catch (e) {
+                    log(`${url} ❌ ${e.message}`, 'error');
+                }
+            }
+        }
+        
+        // 页面加载时自动运行诊断
+        window.onload = runDiagnostics;
+    </script>
+</body>
+</html>

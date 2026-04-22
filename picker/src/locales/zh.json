@@ -1,0 +1,61 @@
+{
+  "common": {
+    "appName": "WB配货系统",
+    "orders": "订单列表",
+    "settings": "设置",
+    "logout": "退出",
+    "loading": "加载中...",
+    "noData": "暂无订单",
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "search": "搜索",
+    "refresh": "刷新",
+    "customer": "客户信息",
+    "remark": "备注",
+    "selectAll": "全选",
+    "items": "件商品",
+    "total": "共",
+    "weight": "重量",
+    "check": "勾选"
+  },
+  "order": {
+    "orderList": "订单列表",
+    "orderNo": "订单号",
+    "customer": "客户",
+    "orderAmount": "金额",
+    "orderStatus": "状态",
+    "orderTime": "下单时间",
+    "pickOrder": "开始配货",
+    "completePick": "完成配货",
+    "productList": "商品清单",
+    "productName": "商品名称",
+    "productNameTh": "泰文名称",
+    "quantity": "订单数量",
+    "actualQty": "实际数量",
+    "unit": "单位",
+    "spec": "规格",
+    "price": "单价",
+    "total": "小计",
+    "remark": "填写配货备注信息（选填）",
+    "scanBarcode": "扫描条形码",
+    "inputProductName": "搜索订单号或客户名",
+    "picking": "已配货",
+    "completed": "已完成",
+    "pending": "待配货",
+    "confirmSubmit": "提交后将通知管理端，订单状态将变更为已发货"
+  },
+  "product": {
+    "name": "商品名称",
+    "nameTh": "泰文名称"
+  },
+  "picker": {
+    "actualQty": "实际数量"
+  },
+  "language": {
+    "language": "语言",
+    "zh": "中文",
+    "en": "English",
+    "th": "ไทย"
+  }
+}

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>配货端</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+    .container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; }
+    .header { background: #1890ff; color: white; padding: 16px; text-align: center; font-size: 18px; font-weight: bold; }
+    .order-item { border-bottom: 1px solid #eee; padding: 16px; }
+    .order-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .order-no { font-weight: bold; color: #333; }
+    .order-status { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+    .status-pending { background: #e6f7ff; color: #1890ff; }
+    .status-picking { background: #fff7e6; color: #fa8c16; }
+    .status-completed { background: #f6ffed; color: #52c41a; }
+    .product-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+    .product-item:last-child { border-bottom: none; }
+    .product-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; margin-right: 12px; }
+    .product-info { flex: 1; }
+    .product-name { font-weight: 500; margin-bottom: 4px; }
+    .product-specs { font-size: 12px; color: #999; }
+    .product-qty { text-align: right; }
+    .qty-label { font-size: 12px; color: #999; }
+    .qty-value { font-size: 16px; font-weight: bold; color: #333; }
+    .input-qty { width: 70px; padding: 6px; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; font-size: 14px; }
+    .btn { padding: 10px 20px; border-radius: 4px; border: none; cursor: pointer; font-size: 14px; }
+    .btn-primary { background: #1890ff; color: white; }
+    .btn-success { background: #52c41a; color: white; }
+    .btn-block { width: 100%; margin-top: 16px; }
+    .login-form { padding: 40px 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; margin-bottom: 8px; font-weight: 500; }
+    .form-input { width: 100%; padding: 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 16px; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; }
+    .modal.show { display: flex; align-items: center; justify-content: center; }
+    .modal-content { background: white; border-radius: 8px; padding: 20px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee; }
+    .modal-title { font-size: 18px; font-weight: bold; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+    .pick-summary { background: #f6ffed; border: 1px solid #b7eb8f; padding: 12px; border-radius: 4px; margin: 16px 0; }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-form">
+      <h2 style="text-align: center; margin-bottom: 30px;">配货员登录</h2>
+      <div class="form-group">
+        <label class="form-label">账号</label>
+        <input type="text" class="form-input" id="username" placeholder="请输入账号">
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input type="password" class="form-input" id="password" placeholder="请输入密码">
+      </div>
+      <button class="btn btn-primary btn-block" onclick="login()">登录</button>
+      <p style="text-align: center; margin-top: 20px; color: #999; font-size: 14px;">测试账号: picker / admin123</p>
+    </div>
+
+    <!-- 订单列表页面 -->
+    <div id="orderPage" style="display: none;">
+      <div class="header">
+        <span id="pageTitle">待配货订单</span>
+        <button onclick="logout()" style="float: right; background: none; border: none; color: white; font-size: 14px;">退出</button>
+      </div>
+      <div id="pageContent" style="padding-bottom: 70px;">
+        <div id="orderList"></div>
+      </div>
+      
+      <!-- 底部导航 -->
+      <div style="position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #eee; display: flex; max-width: 600px; margin: 0 auto;">
+        <div onclick="switchTab('orders')" class="nav-item active" style="flex: 1; padding: 10px; text-align: center; cursor: pointer;" id="nav-orders">
+          <div style="font-size: 20px;">📦</div>
+          <div style="font-size: 12px; color: #1890ff;">订单管理</div>
+        </div>
+        <div onclick="switchTab('profile')" class="nav-item" style="flex: 1; padding: 10px; text-align: center; cursor: pointer;" id="nav-profile">
+          <div style="font-size: 20px;">👤</div>
+          <div style="font-size: 12px; color: #666;">个人信息</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 配货详情弹窗 -->
+    <div id="pickModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title">订单配货</span>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div id="pickContent"></div>
+        <div class="pick-summary">
+          <strong>配货说明：</strong>请核对实际库存，修改配货数量。确认后将提交给管理端审核。
+        </div>
+        <button class="btn btn-success btn-block" onclick="submitPick()">提交配货</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    let token = localStorage.getItem('picker_token');
+    let currentOrder = null;
+
+    let currentTab = 'orders';
+    let pickerInfo = null;
+
+    // 页面加载时检查登录状态
+    if (token) {
+      showOrderPage();
+      loadOrders();
+      loadPickerInfo();
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      // 更新导航样式
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.style.color = '#666';
+        el.querySelector('div:last-child').style.color = '#666';
+      });
+      document.getElementById('nav-' + tab).querySelector('div:last-child').style.color = '#1890ff';
+      
+      if (tab === 'orders') {
+        document.getElementById('pageTitle').textContent = '待配货订单';
+        loadOrders();
+      } else if (tab === 'profile') {
+        document.getElementById('pageTitle').textContent = '个人信息';
+        loadProfilePage();
+      }
+    }
+
+    function loadProfilePage() {
+      if (!pickerInfo) {
+        loadPickerInfo();
+        return;
+      }
+      const html = `
+        <div style="padding: 20px;">
+          <div style="background: #1890ff; color: white; padding: 30px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 48px; margin-bottom: 10px;">👤</div>
+            <div style="font-size: 20px; font-weight: bold;">${pickerInfo.nickname || pickerInfo.username}</div>
+            <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">配货员</div>
+          </div>
+          
+          <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">基本信息</div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f5f5f5;">
+              <span style="color: #666;">账号</span>
+              <span style="font-weight: 500;">${pickerInfo.username}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f5f5f5;">
+              <span style="color: #666;">昵称</span>
+              <span style="font-weight: 500;">${pickerInfo.nickname || '-'}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f5f5f5;">
+              <span style="color: #666;">状态</span>
+              <span style="color: #52c41a; font-weight: 500;">正常</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0;">
+              <span style="color: #666;">最后登录</span>
+              <span style="font-weight: 500;">${pickerInfo.last_login ? new Date(pickerInfo.last_login).toLocaleString() : '-'}</span>
+            </div>
+          </div>
+          
+          <button onclick="logout()" style="width: 100%; padding: 15px; background: #ff4d4f; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">退出登录</button>
+        </div>
+      `;
+      document.getElementById('pageContent').innerHTML = html;
+    }
+
+    function loadPickerInfo() {
+      fetch(`${API_BASE}/admin/auth/info`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.code === 200) {
+          pickerInfo = data.data;
+          if (currentTab === 'profile') {
+            loadProfilePage();
+          }
+        }
+      })
+      .catch(err => console.error('获取个人信息失败:', err));
+    }
+
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if (!username || !password) {
+        alert('请输入账号和密码');
+        return;
+      }
+
+      fetch(`${API_BASE}/admin/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.code === 200) {
+          token = data.data.token;
+          localStorage.setItem('picker_token', token);
+          showOrderPage();
+          loadOrders();
+        } else {
+          alert(data.message || '登录失败');
+        }
+      })
+      .catch(err => {
+        alert('登录失败: ' + err.message);
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('picker_token');
+      token = null;
+      document.getElementById('loginPage').style.display = 'block';
+      document.getElementById('orderPage').style.display = 'none';
+    }
+
+    function showOrderPage() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('orderPage').style.display = 'block';
+    }
+
+    function loadOrders() {
+      fetch(`${API_BASE}/picker/orders`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.code === 200) {
+          renderOrders(data.data);
+        } else {
+          document.getElementById('pageContent').innerHTML = '<div class="empty-state">暂无待配货订单</div>';
+        }
+      })
+      .catch(err => {
+        document.getElementById('pageContent').innerHTML = '<div class="empty-state">加载失败</div>';
+      });
+    }
+
+    function renderOrders(orders) {
+      if (!orders || orders.length === 0) {
+        document.getElementById('pageContent').innerHTML = '<div class="empty-state">暂无待配货订单</div>';
+        return;
+      }
+
+      const html = `
+        <div id="orderList">
+          ${orders.map(order => `
+            <div class="order-item" onclick="showPickModal(${order.id})">
+              <div class="order-header">
+                <span class="order-no">${order.order_no}</span>
+                <span class="order-status status-pending">待配货</span>
+              </div>
+              <div style="font-size: 14px; color: #666; margin-bottom: 8px;">
+                ${order.contact} | ${order.phone}
+              </div>
+              <div style="font-size: 12px; color: #999;">
+                ${order.items.map(item => item.product_name).join('、')} 等 ${order.items.length} 件商品
+              </div>
+              <div style="text-align: right; margin-top: 8px; font-weight: bold; color: #ff4d4f;">
+                ¥${order.total}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      document.getElementById('pageContent').innerHTML = html;
+    }
+
+    function showPickModal(orderId) {
+      fetch(`${API_BASE}/picker/orders/${orderId}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.code === 200) {
+          currentOrder = data.data;
+          renderPickContent(data.data);
+          document.getElementById('pickModal').classList.add('show');
+        }
+      });
+    }
+
+    function renderPickContent(order) {
+      const html = `
+        <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+          <div style="font-weight: bold; margin-bottom: 4px;">${order.order_no}</div>
+          <div style="font-size: 14px; color: #666;">${order.contact} | ${order.phone}</div>
+          <div style="font-size: 14px; color: #999; margin-top: 4px;">${order.address}</div>
+        </div>
+        <div style="font-weight: bold; margin-bottom: 12px;">商品清单：</div>
+        ${order.items.map((item, index) => `
+          <div class="product-item" data-index="${index}">
+            <img src="${item.product_image || 'https://via.placeholder.com/60'}" class="product-img" alt="">
+            <div class="product-info">
+              <div class="product-name">${item.product_name}</div>
+              <div class="product-specs">${item.specs}</div>
+            </div>
+            <div class="product-qty">
+              <div class="qty-label">需配货</div>
+              <div class="qty-value">${item.quantity}</div>
+            </div>
+            <div style="margin-left: 12px;">
+              <div class="qty-label">实际配货</div>
+              <input type="number" class="input-qty" id="pickQty${index}" value="${item.quantity}" min="0">
+            </div>
+          </div>
+        `).join('')}
+      `;
+      document.getElementById('pickContent').innerHTML = html;
+    }
+
+    function closeModal() {
+      document.getElementById('pickModal').classList.remove('show');
+      currentOrder = null;
+    }
+
+    function submitPick() {
+      if (!currentOrder) return;
+
+      const items = currentOrder.items.map((item, index) => ({
+        item_id: item.id,
+        product_id: item.product_id,
+        actual_quantity: parseInt(document.getElementById(`pickQty${index}`).value) || 0
+      }));
+
+      fetch(`${API_BASE}/picker/orders/${currentOrder.id}/pick`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ items })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.code === 200) {
+          alert('配货提交成功，等待管理端确认');
+          closeModal();
+          loadOrders();
+        } else {
+          alert(data.message || '提交失败');
+        }
+      })
+      .catch(err => {
+        alert('提交失败: ' + err.message);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>配货端调试页面</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+        .log { margin: 5px 0; }
+        .error { color: #ff4444; }
+        .success { color: #44ff44; }
+        .info { color: #4488ff; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #output { border: 1px solid #444; padding: 10px; margin-top: 10px; max-height: 400px; overflow-y: auto; background: #0a0a0a; }
+    </style>
+</head>
+<body>
+    <h2>配货端调试页面</h2>
+    <div>
+        <button onclick="testPage()">测试首页加载</button>
+        <button onclick="testResources()">测试资源加载</button>
+        <button onclick="testPicker()">测试配货端连接</button>
+        <button onclick="clearLog()">清除日志</button>
+    </div>
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            output.appendChild(div);
+            console.log(msg);
+        }
+
+        function clearLog() {
+            output.innerHTML = '';
+        }
+
+        async function testPage() {
+            log('测试首页加载...', 'info');
+            try {
+                const start = Date.now();
+                const response = await fetch('/picker/');
+                const duration = Date.now() - start;
+                log(`首页状态: ${response.status} (${duration}ms)`, response.ok ? 'success' : 'error');
+                
+                const html = await response.text();
+                log(`页面大小: ${html.length} 字节`, 'info');
+                
+                if (html.includes('root')) {
+                    log('包含 root 元素 ✓', 'success');
+                } else {
+                    log('未找到 root 元素 ✗', 'error');
+                }
+                
+                if (html.includes('src/main.jsx')) {
+                    log('包含 main.jsx 引用 ✓', 'success');
+                } else {
+                    log('未找到 main.jsx 引用 ✗', 'error');
+                }
+            } catch (e) {
+                log(`首页加载失败: ${e.message}`, 'error');
+            }
+        }
+
+        async function testResources() {
+            log('测试资源加载...', 'info');
+            const resources = [
+                '/src/main.jsx',
+                '/@vite/client',
+                '/node_modules/.vite/deps/react.js'
+            ];
+            
+            for (const url of resources) {
+                try {
+                    const start = Date.now();
+                    const response = await fetch(url);
+                    const duration = Date.now() - start;
+                    
+                    if (response.ok) {
+                        const size = (await response.text()).length;
+                        log(`${url} ✓ (${response.status}, ${size} bytes, ${duration}ms)`, 'success');
+                    } else {
+                        log(`${url} ✗ (${response.status}, ${duration}ms)`, 'error');
+                    }
+                } catch (e) {
+                    log(`${url} 错误: ${e.message}`, 'error');
+                }
+            }
+        }
+
+        async function testPicker() {
+            log('测试配货端连接...', 'info');
+            try {
+                const response = await fetch('/picker/src/main.jsx', {
+                    method: 'HEAD'
+                });
+                log(`配货端响应: ${response.status}`, response.ok ? 'success' : 'error');
+            } catch (e) {
+                log(`配货端连接失败: ${e.message}`, 'error');
+            }
+        }
+
+        // 页面加载时自动诊断
+        window.onload = () => {
+            log('页面加载完成', 'success');
+            log(`当前URL: ${location.href}`, 'info');
+            log(`User Agent: ${navigator.userAgent.substring(0, 80)}...`, 'info');
+        };
+    </script>
+</body>
+</html>

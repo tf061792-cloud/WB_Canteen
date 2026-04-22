@@ -1,0 +1,61 @@
+{
+  "common": {
+    "appName": "WB Picker System",
+    "orders": "Orders",
+    "settings": "Settings",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "noData": "No Orders",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "search": "Search",
+    "refresh": "Refresh",
+    "customer": "Customer Info",
+    "remark": "Remark",
+    "selectAll": "Select All",
+    "items": "items",
+    "total": "Total",
+    "weight": "Weight",
+    "check": "Check"
+  },
+  "order": {
+    "orderList": "Order List",
+    "orderNo": "Orders",
+    "customer": "Customer",
+    "orderAmount": "Amount",
+    "orderStatus": "Status",
+    "orderTime": "Order Time",
+    "pickOrder": "Start Picking",
+    "completePick": "Complete Picking",
+    "productList": "Product List",
+    "productName": "Product Name",
+    "productNameTh": "Thai Name",
+    "quantity": "Order Qty",
+    "actualQty": "Actual Qty",
+    "unit": "Unit",
+    "spec": "Spec",
+    "price": "Price",
+    "total": "Total",
+    "remark": "Enter remarks (optional)",
+    "scanBarcode": "Scan Barcode",
+    "inputProductName": "Search order no or customer",
+    "picking": "Picked",
+    "completed": "Completed",
+    "pending": "Pending",
+    "confirmSubmit": "After submission, the order status will be changed to shipped"
+  },
+  "product": {
+    "name": "Product Name",
+    "nameTh": "Thai Name"
+  },
+  "picker": {
+    "actualQty": "Actual Qty"
+  },
+  "language": {
+    "language": "Language",
+    "zh": "中文",
+    "en": "English",
+    "th": "ไทย"
+  }
+}
