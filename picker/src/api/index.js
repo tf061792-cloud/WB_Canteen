@@ -41,7 +41,7 @@ api.interceptors.response.use(
 
 export const pickerAPI = {
   // 登录
-  login: (data) => api.post('/api/picker/login', data),
+  login: (data) => api.post('/api/picker/auth/login', data),
   
   // 获取订单列表
   getOrders: (params) => api.get('/api/picker/orders', { params }),

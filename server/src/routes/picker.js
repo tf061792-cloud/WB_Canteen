@@ -247,6 +247,25 @@ router.post('/orders/:id/pick', pickerAuth, async (req, res) => {
   }
 })
 
+// 获取商品列表（配货端使用）
+router.get('/products', pickerAuth, async (req, res) => {
+  try {
+    const db = getDb()
+    
+    const products = db.prepare(`
+      SELECT id, name, name_th, price, unit, specs, image
+      FROM products
+      WHERE status = 'active'
+      ORDER BY name
+    `).all()
+    
+    res.json({ success: true, data: products })
+  } catch (error) {
+    console.error('获取商品列表错误:', error)
+    res.status(500).json({ success: false, message: '获取商品列表失败' })
+  }
+})
+
 // 获取配货历史
 router.get('/history', pickerAuth, async (req, res) => {
   try {

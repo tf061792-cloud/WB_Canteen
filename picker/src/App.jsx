@@ -38,7 +38,7 @@ function App() {
   
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter basename="/picker">
         <Routes>
           <Route 
             path="/login" 
