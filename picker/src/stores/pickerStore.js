@@ -1,34 +1,48 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-// 清理可能残留的 localStorage 数据
-localStorage.removeItem('picker-storage')
-localStorage.removeItem('picker_token')
-localStorage.removeItem('picker_user')
+const storage = {
+  getItem: (name) => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(name);
+  },
+  setItem: (name, value) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(name, value);
+    }
+  },
+  removeItem: (name) => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(name);
+    }
+  }
+};
 
 export const usePickerStore = create(
-  (set, get) => ({
-    // 用户信息
-    user: null,
-    token: null,
-    
-    // 登录
-    login: (user, token) => {
-      localStorage.setItem('picker_token', token)
-      localStorage.setItem('picker_user', JSON.stringify(user))
-      set({ user, token })
-    },
-    
-    // 登出
-    logout: () => {
-      localStorage.removeItem('picker_token')
-      localStorage.removeItem('picker_user')
-      set({ user: null, token: null })
-    },
-    
-    // 设置用户信息
-    setUser: (user) => set({ user }),
-    
-    // 是否已登录
-    isLoggedIn: () => !!get().token
-  })
-)
+  persist(
+    (set, get) => ({
+      user: null,
+      token: null,
+
+      login: (user, token) => {
+        set({ user, token });
+      },
+
+      logout: () => {
+        set({ user: null, token: null });
+      },
+
+      setUser: (user) => set({ user }),
+
+      isLoggedIn: () => !!get().token
+    }),
+    {
+      name: 'picker-storage',
+      storage: createJSONStorage(() => storage),
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token
+      })
+    }
+  )
+);

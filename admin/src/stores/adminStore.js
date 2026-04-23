@@ -1,58 +1,77 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { authAPI } from '../api/index';
 
-// 清理可能残留的 localStorage 数据
-localStorage.removeItem('admin-storage')
+const storage = {
+  getItem: (name) => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(name);
+  },
+  setItem: (name, value) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(name, value);
+    }
+  },
+  removeItem: (name) => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(name);
+    }
+  }
+};
 
 export const useAdminStore = create(
-  (set, get) => ({
-    admin: null,
-    token: null,
-    isLoggedIn: false,
-    
-    // 登录
-    login: async (username, password) => {
-      const res = await authAPI.login({ username, password });
-      if (res.code === 200) {
-        const { data } = res;
-        set({
-          admin: {
-            id: data.id,
-            username: data.username,
-            nickname: data.nickname,
-            role: data.role
-          },
-          token: data.token,
-          isLoggedIn: true
-        });
-        // 保存 token 到 localStorage 供 API 请求使用
-        localStorage.setItem('admin_token', data.token);
-        return true;
-      }
-      throw new Error(res.message);
-    },
-    
-    // 获取管理员信息
-    fetchInfo: async () => {
-      try {
-        const res = await authAPI.getInfo();
+  persist(
+    (set, get) => ({
+      admin: null,
+      token: null,
+      isLoggedIn: false,
+
+      login: async (username, password) => {
+        const res = await authAPI.login({ username, password });
         if (res.code === 200) {
-          set({ admin: res.data });
+          const { data } = res;
+          set({
+            admin: {
+              id: data.id,
+              username: data.username,
+              nickname: data.nickname,
+              role: data.role
+            },
+            token: data.token,
+            isLoggedIn: true
+          });
+          return true;
         }
-      } catch (error) {
-        console.error('获取管理员信息失败:', error);
+        throw new Error(res.message);
+      },
+
+      fetchInfo: async () => {
+        try {
+          const res = await authAPI.getInfo();
+          if (res.code === 200) {
+            set({ admin: res.data });
+          }
+        } catch (error) {
+          console.error('获取管理员信息失败:', error);
+        }
+      },
+
+      logout: () => {
+        set({
+          admin: null,
+          token: null,
+          isLoggedIn: false
+        });
       }
-    },
-    
-    // 登出
-    logout: () => {
-      set({
-        admin: null,
-        token: null,
-        isLoggedIn: false
-      });
-      // 清除 localStorage 中的 token
-      localStorage.removeItem('admin_token');
+    }),
+    {
+      name: 'admin-storage',
+      storage: createJSONStorage(() => storage),
+      partialize: (state) => ({
+        token: state.token,
+        admin: state.admin,
+        isLoggedIn: state.isLoggedIn
+      })
     }
-  })
+  )
 );
