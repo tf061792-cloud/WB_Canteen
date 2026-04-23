@@ -90,7 +90,11 @@ app.use('/api/admin/site', adminAuth, siteInfoRoutes);
 
 // 健康检查
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    time: new Date().toISOString(),
+    port: PORT
+  });
 });
 
 // 404 处理 - API 路径不存在时返回 JSON

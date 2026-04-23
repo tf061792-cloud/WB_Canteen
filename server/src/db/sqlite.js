@@ -4,11 +4,13 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '../../data/canteen.db');
-const dataDir = path.dirname(dbPath);
+// 使用 Railway 的持久化存储目录，或本地开发目录
+const isRailway = process.env.RAILWAY_STATIC_URL || process.env.RAILWAY_ENVIRONMENT;
+const dbDir = isRailway ? '/data' : path.join(__dirname, '../../data');
+const dbPath = path.join(dbDir, 'canteen.db');
 
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
 }
 
 let db = null;
