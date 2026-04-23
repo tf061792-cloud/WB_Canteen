@@ -111,7 +111,7 @@ async function start() {
     // 初始化数据库
     await initDatabase();
     
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ 服务器运行在 http://localhost:${PORT}`);
       console.log(`   用户端 API: http://localhost:${PORT}/api`);
       console.log(`   管理端 API: http://localhost:${PORT}/api/admin`);
