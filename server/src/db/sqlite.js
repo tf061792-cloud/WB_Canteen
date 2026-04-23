@@ -154,6 +154,23 @@ async function initDatabase() {
     )
   `);
 
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS order_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id INTEGER NOT NULL,
+      product_id INTEGER NOT NULL,
+      product_name TEXT,
+      name_th TEXT,
+      specs TEXT,
+      price DECIMAL(10,2),
+      quantity INTEGER,
+      subtotal DECIMAL(10,2),
+      actual_qty INTEGER,
+      actual_weight TEXT,
+      unit TEXT
+    )
+  `);
+
   try {
     const columns = db.prepare("PRAGMA table_info(orders)").all();
     const columnNames = columns.map(col => col.name);
@@ -220,23 +237,6 @@ async function initDatabase() {
   } catch (e) {
     console.log('迁移检查:', e.message);
   }
-
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS order_items (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      order_id INTEGER NOT NULL,
-      product_id INTEGER NOT NULL,
-      product_name TEXT,
-      name_th TEXT,
-      specs TEXT,
-      price DECIMAL(10,2),
-      quantity INTEGER,
-      subtotal DECIMAL(10,2),
-      actual_qty INTEGER,
-      actual_weight TEXT,
-      unit TEXT
-    )
-  `);
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS admins (
