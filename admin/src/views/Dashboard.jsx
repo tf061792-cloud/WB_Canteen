@@ -15,7 +15,7 @@ export default function Dashboard() {
   const loadStats = async () => {
     try {
       setLoading(true);
-      const res = await orderAPI.stats();
+      const res = await orderAPI.getOrderStats();
       if (res.code === 200) {
         setStats(res.data);
       }
