@@ -4,8 +4,7 @@
   "description": "WB食堂食材下单系统后端",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node src/index.js"
+  "start": "pnpm install --no-frozen-lockfile && node src/index.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
