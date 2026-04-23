@@ -1,19 +1,24 @@
-// 临时简化 i18n，避免白屏
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// 直接初始化空配置
+import zh from './locales/zh.json';
+import en from './locales/en.json';
+import th from './locales/th.json';
+
+const resources = {
+  zh: { translation: zh },
+  en: { translation: en },
+  th: { translation: th }
+};
+
 i18n
   .use(initReactI18next)
   .init({
+    resources,
     fallbackLng: 'zh',
+    lng: 'zh', // 默认中文
     interpolation: {
       escapeValue: false
-    },
-    resources: {
-      zh: { translation: {} },
-      en: { translation: {} },
-      th: { translation: {} }
     }
   });
 
