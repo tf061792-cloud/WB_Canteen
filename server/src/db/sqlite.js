@@ -4,10 +4,15 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 
-// 使用 Railway 的持久化存储目录，或本地开发目录
-const isRailway = process.env.RAILWAY_STATIC_URL || process.env.RAILWAY_ENVIRONMENT;
-const dbDir = isRailway ? '/data' : path.join(__dirname, '../../data');
+// 使用项目内的 data 目录（无论什么环境都统一）
+const dbDir = path.join(__dirname, '../../data');
 const dbPath = path.join(dbDir, 'canteen.db');
+
+// 打印调试信息
+console.log('📁 数据库目录:', dbDir);
+console.log('📄 数据库文件:', dbPath);
+console.log('🏠 工作目录:', process.cwd());
+console.log('📍 __dirname:', __dirname);
 
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
@@ -64,8 +69,13 @@ class Database {
 }
 
 async function initDatabase() {
+  console.log('🚀 开始初始化数据库...');
+  
   const SQL = await initSqlJs();
   const isNewDatabase = !fs.existsSync(dbPath);
+  
+  console.log('🔍 数据库文件存在:', fs.existsSync(dbPath));
+  console.log('📦 是新数据库:', isNewDatabase);
 
   if (fs.existsSync(dbPath)) {
     const fileBuffer = fs.readFileSync(dbPath);
