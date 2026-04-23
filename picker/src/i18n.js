@@ -12,6 +12,8 @@ const resources = {
   th: { translation: th }
 };
 
+const isBrowser = typeof window !== 'undefined';
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -22,8 +24,8 @@ i18n
       escapeValue: false
     },
     detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage']
+      order: isBrowser ? ['localStorage', 'navigator'] : ['navigator'],
+      caches: isBrowser ? ['localStorage'] : []
     }
   });
 
