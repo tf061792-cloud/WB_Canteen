@@ -39,4 +39,80 @@ api.interceptors.response.use(
   }
 );
 
+export const authAPI = {
+  login: (data) => api.post('/api/admin/auth/login', data),
+  getInfo: () => api.get('/api/admin/auth/info')
+};
+
+export const adminAPI = {
+  // 管理员用户管理
+  getAdmins: (params) => api.get('/api/admin/users', { params }),
+  createAdmin: (data) => api.post('/api/admin/users', data),
+  updateAdmin: (id, data) => api.put(`/api/admin/users/${id}`, data),
+  deleteAdmin: (id) => api.delete(`/api/admin/users/${id}`),
+  
+  // 客户管理
+  getCustomers: (params) => api.get('/api/admin/customers', { params }),
+  updateCustomer: (id, data) => api.put(`/api/admin/customers/${id}`, data),
+  
+  // 分销管理
+  getDistribution: (params) => api.get('/api/admin/distribution', { params }),
+  updateDistribution: (id, data) => api.put(`/api/admin/distribution/${id}`, data),
+  
+  // 权限管理
+  getPermissions: () => api.get('/api/admin/permissions'),
+  updatePermissions: (data) => api.put('/api/admin/permissions', data),
+  
+  // 网站信息
+  getSiteInfo: () => api.get('/api/site'),
+  updateSiteInfo: (data) => api.put('/api/admin/site', data)
+};
+
+export const orderAPI = {
+  getOrders: (params) => api.get('/api/orders/admin/list', { params }),
+  getOrderStats: () => api.get('/api/orders/admin/stats'),
+  updateOrder: (id, data) => api.put(`/api/orders/${id}`, data),
+  confirmOrder: (id) => api.post(`/api/orders/${id}/confirm`),
+  cancelOrder: (id) => api.post(`/api/orders/${id}/cancel`),
+  shipOrder: (id) => api.post(`/api/orders/${id}/ship`),
+  completeOrder: (id) => api.post(`/api/orders/${id}/complete`),
+  updateOrderItems: (id, data) => api.post(`/api/orders/admin/${id}/update-items`),
+  pickOrder: (id, data) => api.post(`/api/orders/admin/${id}/pick`)
+};
+
+export const productAPI = {
+  getProducts: (params) => api.get('/api/products', { params }),
+  getProduct: (id) => api.get(`/api/products/${id}`),
+  createProduct: (data) => api.post('/api/products', data),
+  updateProduct: (id, data) => api.put(`/api/products/${id}`, data),
+  deleteProduct: (id) => api.delete(`/api/products/${id}`),
+  
+  // 分类管理
+  getCategories: () => api.get('/api/products/categories'),
+  createCategory: (data) => api.post('/api/products/categories', data),
+  updateCategory: (id, data) => api.put(`/api/products/categories/${id}`, data),
+  deleteCategory: (id) => api.delete(`/api/products/categories/${id}`)
+};
+
+export const categoryAPI = productAPI;
+
+export const pickerAPI = {
+  getOrders: (params) => api.get('/api/picker/orders', { params }),
+  getOrderDetail: (id) => api.get(`/api/picker/orders/${id}`),
+  getProducts: () => api.get('/api/picker/products'),
+  submitPickList: (orderId, data) => api.post(`/api/picker/orders/${orderId}/pick`, data)
+};
+
+export const pricingAPI = {
+  getPricing: () => api.get('/api/admin/pricing'),
+  updatePricing: (data) => api.put('/api/admin/pricing', data)
+};
+
+export const bannerAPI = {
+  getBanners: (params) => api.get('/api/banners', { params }),
+  createBanner: (data) => api.post('/api/admin/banners', data),
+  updateBanner: (id, data) => api.put(`/api/admin/banners/${id}`, data),
+  deleteBanner: (id) => api.delete(`/api/admin/banners/${id}`)
+};
+
 export default api;

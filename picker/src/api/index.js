@@ -39,4 +39,21 @@ api.interceptors.response.use(
   }
 );
 
+export const pickerAPI = {
+  // 登录
+  login: (data) => api.post('/api/picker/login', data),
+  
+  // 获取订单列表
+  getOrders: (params) => api.get('/api/picker/orders', { params }),
+  
+  // 获取订单详情
+  getOrderDetail: (id) => api.get(`/api/picker/orders/${id}`),
+  
+  // 获取商品列表
+  getProducts: () => api.get('/api/picker/products'),
+  
+  // 提交配货列表
+  submitPickList: (orderId, data) => api.post(`/api/picker/orders/${orderId}/pick`, data)
+};
+
 export default api;

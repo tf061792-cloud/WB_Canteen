@@ -39,4 +39,38 @@ api.interceptors.response.use(
   }
 );
 
+export const authAPI = {
+  login: (data) => api.post('/api/auth/login', data),
+  register: (data) => api.post('/api/auth/register', data),
+  getInfo: () => api.get('/api/auth/info'),
+  update: (data) => api.put('/api/auth/update')
+};
+
+export const productAPI = {
+  getProducts: (params) => api.get('/api/products', { params }),
+  getProduct: (id) => api.get(`/api/products/${id}`),
+  getCategories: () => api.get('/api/products/categories')
+};
+
+export const bannerAPI = {
+  getBanners: (params) => api.get('/api/banners', { params })
+};
+
+export const orderAPI = {
+  createOrder: (data) => api.post('/api/orders', data),
+  getOrders: (params) => api.get('/api/orders', { params }),
+  getOrderDetail: (id) => api.get(`/api/orders/${id}`),
+  confirmOrder: (id) => api.post(`/api/orders/${id}/confirm`),
+  cancelOrder: (id) => api.post(`/api/orders/${id}/cancel`),
+  receiveOrder: (id) => api.post(`/api/orders/${id}/receive`)
+};
+
+export const addressAPI = {
+  getAddresses: () => api.get('/api/addresses'),
+  createAddress: (data) => api.post('/api/addresses', data),
+  updateAddress: (id, data) => api.put(`/api/addresses/${id}`, data),
+  deleteAddress: (id) => api.delete(`/api/addresses/${id}`),
+  setDefault: (id) => api.put(`/api/addresses/${id}/default`)
+};
+
 export default api;
