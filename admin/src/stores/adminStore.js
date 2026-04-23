@@ -21,49 +21,54 @@ const storage = {
 
 export const useAdminStore = create(
   persist(
-    (set, get) => ({
-      admin: null,
-      token: null,
-      isLoggedIn: false,
+    (set, get) => {
+      // 初始化日志
+      console.log('🏪 useAdminStore 初始化');
+      
+      return {
+        admin: null,
+        token: null,
+        isLoggedIn: false,
 
-      login: async (username, password) => {
-        const res = await authAPI.login({ username, password });
-        if (res.code === 200) {
-          const { data } = res;
-          set({
-            admin: {
-              id: data.id,
-              username: data.username,
-              nickname: data.nickname,
-              role: data.role
-            },
-            token: data.token,
-            isLoggedIn: true
-          });
-          return true;
-        }
-        throw new Error(res.message);
-      },
-
-      fetchInfo: async () => {
-        try {
-          const res = await authAPI.getInfo();
+        login: async (username, password) => {
+          const res = await authAPI.login({ username, password });
           if (res.code === 200) {
-            set({ admin: res.data });
+            const { data } = res;
+            set({
+              admin: {
+                id: data.id,
+                username: data.username,
+                nickname: data.nickname,
+                role: data.role
+              },
+              token: data.token,
+              isLoggedIn: true
+            });
+            return true;
           }
-        } catch (error) {
-          console.error('获取管理员信息失败:', error);
-        }
-      },
+          throw new Error(res.message);
+        },
 
-      logout: () => {
-        set({
-          admin: null,
-          token: null,
-          isLoggedIn: false
-        });
-      }
-    }),
+        fetchInfo: async () => {
+          try {
+            const res = await authAPI.getInfo();
+            if (res.code === 200) {
+              set({ admin: res.data });
+            }
+          } catch (error) {
+            console.error('获取管理员信息失败:', error);
+          }
+        },
+
+        logout: () => {
+          set({
+            admin: null,
+            token: null,
+            isLoggedIn: false
+          });
+        }
+      };
+    },
     {
       name: 'admin-storage',
       storage: createJSONStorage(() => storage),

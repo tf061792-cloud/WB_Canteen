@@ -49,12 +49,19 @@ function PageLoader() {
 
 // 受保护的路由
 function ProtectedRoute({ children }) {
-  const { isLoggedIn } = useAdminStore();
+  const { isLoggedIn, admin, token } = useAdminStore();
+  
+  // 添加调试日志
+  console.log('🔐 ProtectedRoute - isLoggedIn:', isLoggedIn);
+  console.log('🔐 ProtectedRoute - admin:', admin);
+  console.log('🔐 ProtectedRoute - token:', token);
   
   if (!isLoggedIn) {
+    console.log('🔄 未登录，跳转到 /login');
     return <Navigate to="/login" replace />;
   }
   
+  console.log('✅ 已登录，允许访问');
   return children;
 }
 

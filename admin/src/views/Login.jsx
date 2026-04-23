@@ -7,8 +7,11 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAdminStore();
+  const { login, isLoggedIn } = useAdminStore();
   const navigate = useNavigate();
+  
+  // 只加日志
+  console.log('🔐 Login 页面加载 - isLoggedIn:', isLoggedIn);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
