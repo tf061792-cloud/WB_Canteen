@@ -29,22 +29,33 @@ const PORT = process.env.PORT || 3006;
 
 // 中间件
 const allowedOrigins = [
-  'https://wbcanteen-admin-anke1nisw-chn1.vercel.app',
-  'https://wbcanteen-admin-j6d88to1i-chn1.vercel.app',
+  'https://wbcanteen-admin.vercel.app',
+  'https://wbcanteen-client.vercel.app',
+  'https://wbcanteen-picker.vercel.app',
   'http://localhost:3005',
   'http://localhost:3001',
+  'http://localhost:3007',
   'http://localhost:3000',
   'http://localhost:5173'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('❌ 不允许的 origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+    // 允许无 origin 的请求（如 Postman）
+    if (!origin) {
+      return callback(null, true);
     }
+    // 检查是否在固定列表中
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    // 允许所有 .vercel.app 域名（预览部署）
+    if (/\.vercel\.app$/.test(origin)) {
+      console.log('✅ 允许 Vercel 预览域名:', origin);
+      return callback(null, true);
+    }
+    console.log('❌ 不允许的 origin:', origin);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
