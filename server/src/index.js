@@ -29,14 +29,17 @@ const PORT = process.env.PORT || 3006;
 
 // 中间件
 app.use(cors({
-  origin: [
-    'https://wbcanteen-admin.vercel.app',
-    'https://wbcanteen-client.vercel.app', 
-    'https://wbcanteen-picker.vercel.app',
-    'http://localhost:3001',
-    'http://localhost:3005',
-    'http://localhost:3007'
-  ],
+  origin: function(origin, callback) {
+    // 允许所有 Vercel 预览 URL 和本地开发
+    if (!origin || 
+        origin.includes('vercel.app') || 
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
