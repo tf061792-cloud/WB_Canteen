@@ -1,15 +1,15 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy } from 'react';
 import { useAdminStore } from './stores/adminStore';
 import Login from './views/Login';
 import Layout from './views/Layout';
 
-// 核心页面直接导入（避免首屏黑屏）
+// 核心页面直接导入
 import Dashboard from './views/Dashboard';
 import OrderList from './views/OrderList';
 import ProductManage from './views/ProductManage';
 
-// 懒加载次要页面组件
+// 懒加载次要页面
 const CategoryList = lazy(() => import('./views/CategoryList'));
 const CustomerList = lazy(() => import('./views/CustomerList'));
 const AdminUserList = lazy(() => import('./views/AdminUserList'));
@@ -19,18 +19,7 @@ const BannerManage = lazy(() => import('./views/BannerManage'));
 const SiteInfo = lazy(() => import('./views/SiteInfo'));
 const FinanceAnalysis = lazy(() => import('./views/FinanceAnalysis'));
 
-
-// 预加载函数
-const prefetchComponents = () => {
-  const components = [
-    () => import('./views/CategoryList'),
-    () => import('./views/CustomerList'),
-    () => import('./views/FinanceAnalysis'),
-  ];
-  components.forEach(comp => comp());
-};
-
-// 页面加载占位符 - 使用骨架屏避免黑屏
+// 页面加载占位符
 function PageLoader() {
   return (
     <div className="p-6 animate-pulse">
@@ -39,43 +28,24 @@ function PageLoader() {
       <div className="space-y-3">
         <div className="h-12 bg-gray-200 rounded"></div>
         <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
-        <div className="h-12 bg-gray-200 rounded"></div>
       </div>
     </div>
   );
 }
 
-// 受保护的路由
+// 受保护的路由（最简单）
 function ProtectedRoute({ children }) {
-  const { isLoggedIn, admin, token } = useAdminStore();
+  const { isLoggedIn } = useAdminStore();
   
-  // 添加调试日志
-  console.log('🔐 ProtectedRoute - isLoggedIn:', isLoggedIn);
-  console.log('🔐 ProtectedRoute - admin:', admin);
-  console.log('🔐 ProtectedRoute - token:', token);
+  const location = useLocation();
+  console.log('� 当前路径:', location.pathname);
+  console.log('🔐 isLoggedIn:', isLoggedIn);
   
-  if (!isLoggedIn) {
+  // 如果未登录且不在登录页，才跳转
+  if (!isLoggedIn && location.pathname !== '/login') {
     console.log('🔄 未登录，跳转到 /login');
     return <Navigate to="/login" replace />;
   }
-  
-  console.log('✅ 已登录，允许访问');
-  return children;
-}
-
-
-
-// 路由预加载包装组件
-function PrefetchWrapper({ children }) {
-  const location = useLocation();
-  
-  useEffect(() => {
-    // 页面加载完成后预加载其他组件
-    const timer = setTimeout(prefetchComponents, 1000);
-    return () => clearTimeout(timer);
-  }, []);
   
   return children;
 }
@@ -84,28 +54,30 @@ export default function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
+        {/* 登录页面不需要保护 */}
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={
+        
+        {/* 其他所有页面都需要保护 */}
+        <Route path="/*" element={
           <ProtectedRoute>
-            <PrefetchWrapper>
-              <Layout />
-            </PrefetchWrapper>
+            <Layout>
+              <Routes>
+                <Route index element={<Dashboard />} />
+                <Route path="orders" element={<OrderList />} />
+                <Route path="products" element={<ProductManage />} />
+                <Route path="categories" element={<CategoryList />} />
+                <Route path="customers" element={<CustomerList />} />
+                <Route path="admin-users" element={<AdminUserList />} />
+                <Route path="distribution" element={<DistributionManage />} />
+                <Route path="pricing" element={<ProductManage />} />
+                <Route path="permissions" element={<PermissionManage />} />
+                <Route path="banners" element={<BannerManage />} />
+                <Route path="site-info" element={<SiteInfo />} />
+                <Route path="finance" element={<FinanceAnalysis />} />
+              </Routes>
+            </Layout>
           </ProtectedRoute>
-        }>
-          <Route index element={<Dashboard />} />
-          <Route path="orders" element={<OrderList />} />
-          <Route path="products" element={<ProductManage />} />
-          <Route path="categories" element={<CategoryList />} />
-          <Route path="customers" element={<CustomerList />} />
-          <Route path="admin-users" element={<AdminUserList />} />
-          <Route path="distribution" element={<DistributionManage />} />
-          <Route path="pricing" element={<ProductManage />} />
-          <Route path="permissions" element={<PermissionManage />} />
-          <Route path="banners" element={<BannerManage />} />
-          <Route path="site-info" element={<SiteInfo />} />
-          <Route path="finance" element={<FinanceAnalysis />} />
-
-        </Route>
+        } />
       </Routes>
     </Suspense>
   );

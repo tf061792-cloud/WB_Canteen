@@ -1,82 +1,51 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import { authAPI } from '../api/index';
 
-const storage = {
-  getItem: (name) => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(name);
+console.log('🏪 useAdminStore 初始化 (无 persist)');
+
+export const useAdminStore = create((set, get) => ({
+  admin: null,
+  token: null,
+  isLoggedIn: false,
+
+  login: async (username, password) => {
+    console.log('🔐 尝试登录:', username);
+    const res = await authAPI.login({ username, password });
+    if (res.code === 200) {
+      const { data } = res;
+      console.log('✅ 登录成功:', data);
+      set({
+        admin: {
+          id: data.id,
+          username: data.username,
+          nickname: data.nickname,
+          role: data.role
+        },
+        token: data.token,
+        isLoggedIn: true
+      });
+      return true;
+    }
+    throw new Error(res.message);
   },
-  setItem: (name, value) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(name, value);
+
+  fetchInfo: async () => {
+    try {
+      const res = await authAPI.getInfo();
+      if (res.code === 200) {
+        set({ admin: res.data });
+      }
+    } catch (error) {
+      console.error('获取管理员信息失败:', error);
     }
   },
-  removeItem: (name) => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(name);
-    }
+
+  logout: () => {
+    console.log('🚪 登出');
+    set({
+      admin: null,
+      token: null,
+      isLoggedIn: false
+    });
   }
-};
-
-export const useAdminStore = create(
-  persist(
-    (set, get) => {
-      // 初始化日志
-      console.log('🏪 useAdminStore 初始化');
-      
-      return {
-        admin: null,
-        token: null,
-        isLoggedIn: false,
-
-        login: async (username, password) => {
-          const res = await authAPI.login({ username, password });
-          if (res.code === 200) {
-            const { data } = res;
-            set({
-              admin: {
-                id: data.id,
-                username: data.username,
-                nickname: data.nickname,
-                role: data.role
-              },
-              token: data.token,
-              isLoggedIn: true
-            });
-            return true;
-          }
-          throw new Error(res.message);
-        },
-
-        fetchInfo: async () => {
-          try {
-            const res = await authAPI.getInfo();
-            if (res.code === 200) {
-              set({ admin: res.data });
-            }
-          } catch (error) {
-            console.error('获取管理员信息失败:', error);
-          }
-        },
-
-        logout: () => {
-          set({
-            admin: null,
-            token: null,
-            isLoggedIn: false
-          });
-        }
-      };
-    },
-    {
-      name: 'admin-storage',
-      storage: createJSONStorage(() => storage),
-      partialize: (state) => ({
-        token: state.token,
-        admin: state.admin,
-        isLoggedIn: state.isLoggedIn
-      })
-    }
-  )
-);
+}));
