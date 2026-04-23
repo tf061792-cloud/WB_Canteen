@@ -45,6 +45,12 @@ export const authAPI = {
 };
 
 export const adminAPI = {
+  // 通用方法（自动添加 /api 前缀）
+  get: (url, params) => api.get(`/api${url}`, { params }),
+  post: (url, data) => api.post(`/api${url}`, data),
+  put: (url, data) => api.put(`/api${url}`, data),
+  delete: (url) => api.delete(`/api${url}`),
+  
   // 管理员用户管理
   getAdmins: (params) => api.get('/api/admin/users', { params }),
   createAdmin: (data) => api.post('/api/admin/users', data),
@@ -69,6 +75,7 @@ export const adminAPI = {
 };
 
 export const orderAPI = {
+  list: (params) => api.get('/api/orders/admin/list', { params }),
   getOrders: (params) => api.get('/api/orders/admin/list', { params }),
   getOrderStats: () => api.get('/api/orders/admin/stats'),
   stats: () => api.get('/api/orders/admin/stats'),
@@ -82,6 +89,7 @@ export const orderAPI = {
 };
 
 export const productAPI = {
+  list: (params) => api.get('/api/products', { params }),
   getProducts: (params) => api.get('/api/products', { params }),
   getProduct: (id) => api.get(`/api/products/${id}`),
   createProduct: (data) => api.post('/api/products', data),
@@ -105,11 +113,13 @@ export const pickerAPI = {
 };
 
 export const pricingAPI = {
+  list: (params) => api.get('/api/admin/pricing', { params }),
   getPricing: () => api.get('/api/admin/pricing'),
   updatePricing: (data) => api.put('/api/admin/pricing', data)
 };
 
 export const bannerAPI = {
+  list: (params) => api.get('/api/banners', { params }),
   getBanners: (params) => api.get('/api/banners', { params }),
   createBanner: (data) => api.post('/api/admin/banners', data),
   updateBanner: (id, data) => api.put(`/api/admin/banners/${id}`, data),
