@@ -71,6 +71,7 @@ export const adminAPI = {
 export const orderAPI = {
   getOrders: (params) => api.get('/api/orders/admin/list', { params }),
   getOrderStats: () => api.get('/api/orders/admin/stats'),
+  stats: () => api.get('/api/orders/admin/stats'),
   updateOrder: (id, data) => api.put(`/api/orders/${id}`, data),
   confirmOrder: (id) => api.post(`/api/orders/${id}/confirm`),
   cancelOrder: (id) => api.post(`/api/orders/${id}/cancel`),
