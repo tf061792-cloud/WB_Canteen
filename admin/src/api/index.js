@@ -95,9 +95,11 @@ export const productAPI = {
   createProduct: (data) => api.post('/api/products', data),
   updateProduct: (id, data) => api.put(`/api/products/${id}`, data),
   deleteProduct: (id) => api.delete(`/api/products/${id}`),
+  update: (id, data) => api.put(`/api/products/${id}`, data), // 兼容 CategoryList 调用
   
   // 分类管理
   getCategories: () => api.get('/api/products/categories'),
+  categories: () => api.get('/api/products/categories'), // 兼容 CategoryList 调用
   createCategory: (data) => api.post('/api/products/categories', data),
   updateCategory: (id, data) => api.put(`/api/products/categories/${id}`, data),
   deleteCategory: (id) => api.delete(`/api/products/categories/${id}`)
