@@ -3,8 +3,7 @@ const BASE_URL = '/api';
 
 // 获取 token
 function getToken() {
-  // 尝试从 zustand persist 的 storage 中获取
-  const userStorage = JSON.parse(localStorage.getItem('user-storage') || '{}');
+  // 尝试�?zustand persist �?storage 中获�?  const userStorage = JSON.parse(localStorage.getItem('user-storage') || '{}');
   const state = userStorage.state || userStorage;
   return state?.token || null;
 }
@@ -72,8 +71,7 @@ const orderAPI = {
   confirm: (id) => request(`/orders/${id}/confirm`, { method: 'POST' })
 };
 
-// 轮播图
-const bannerAPI = {
+// 轮播�?const bannerAPI = {
   list: () => request('/banners')
 };
 
@@ -88,3 +86,4 @@ const addressAPI = {
 
 export { authAPI, productAPI, orderAPI, bannerAPI, addressAPI };
 export default { authAPI, productAPI, orderAPI, bannerAPI, addressAPI };
+
