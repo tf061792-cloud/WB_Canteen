@@ -57,11 +57,12 @@
     }
   },
   "menu": {
-    "dashboard": "แดชบอร์ด",
+    "dashboard": "หน้าแรก",
     "orders": "คำสั่งซื้อ",
     "products": "สินค้า",
     "categories": "หมวดหมู่",
     "customers": "ลูกค้า",
+    "finance": "การเงิน",
     "distribution": "การจัดจำหน่าย",
     "adminUsers": "ผู้ดูแลระบบ",
     "permissions": "สิทธิ์",

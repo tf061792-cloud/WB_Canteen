@@ -1,30 +1,33 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAdminStore } from '../stores/adminStore';
+import LanguageSelector from '../components/LanguageSelector';
 
-// 菜单配置（全中文硬编码）
+// 菜单配置（使用翻译键）
 const menuItems = [
-  { path: '/', icon: '📊', label: '首页' },
-  { path: '/orders', icon: '📋', label: '订单管理' },
-  { path: '/products', icon: '📦', label: '商品管理' },
-  { path: '/categories', icon: '🏷️', label: '分类管理' },
-  { path: '/customers', icon: '👥', label: '客户管理' },
-  { path: '/finance', icon: '💰', label: '财务分析' },
-  { path: '/distribution', icon: '🤝', label: '分销管理' },
-  { path: '/admin-users', icon: '🔐', label: '管理员' },
-  { path: '/permissions', icon: '🛡️', label: '权限管理' },
-  { path: '/banners', icon: '🖼️', label: '轮播图' },
-  { path: '/site-info', icon: '⚙️', label: '网站信息' }
+  { path: '/', icon: '📊', labelKey: 'menu.dashboard' },
+  { path: '/orders', icon: '📋', labelKey: 'menu.orders' },
+  { path: '/products', icon: '📦', labelKey: 'menu.products' },
+  { path: '/categories', icon: '🏷️', labelKey: 'menu.categories' },
+  { path: '/customers', icon: '👥', labelKey: 'menu.customers' },
+  { path: '/finance', icon: '💰', labelKey: 'menu.finance' },
+  { path: '/distribution', icon: '🤝', labelKey: 'menu.distribution' },
+  { path: '/admin-users', icon: '🔐', labelKey: 'menu.adminUsers' },
+  { path: '/permissions', icon: '🛡️', labelKey: 'menu.permissions' },
+  { path: '/banners', icon: '🖼️', labelKey: 'menu.banners' },
+  { path: '/site-info', icon: '⚙️', labelKey: 'menu.siteInfo' }
 ];
 
 export default function Layout() {
+  const { t } = useTranslation();
   const location = useLocation();
   const { admin, logout } = useAdminStore();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleLogout = () => {
-    if (confirm('确定要退出登录吗？')) {
+    if (confirm(t('common.confirmLogout'))) {
       logout();
       navigate('/login');
     }
@@ -37,7 +40,7 @@ export default function Layout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-gray-100">
           <div className="text-2xl mr-2">🍽️</div>
-          {sidebarOpen && <span className="font-bold text-gray-800">WB食堂管理</span>}
+          {sidebarOpen && <span className="font-bold text-gray-800">{t('common.appName')}</span>}
         </div>
 
         {/* 菜单 */}
@@ -53,7 +56,7 @@ export default function Layout() {
               }`}
             >
               <span className="text-xl mr-3">{item.icon}</span>
-              {sidebarOpen && <span>{item.label}</span>}
+              {sidebarOpen && <span>{t(item.labelKey)}</span>}
             </Link>
           ))}
         </nav>
@@ -67,7 +70,7 @@ export default function Layout() {
             {sidebarOpen && (
               <div className="flex-1">
                 <p className="font-medium text-gray-800 text-sm">{admin?.nickname}</p>
-                <p className="text-xs text-gray-500">{admin?.role || '管理员'}</p>
+                <p className="text-xs text-gray-500">{admin?.role || t('menu.adminUsers')}</p>
               </div>
             )}
             {sidebarOpen && (
@@ -89,6 +92,11 @@ export default function Layout() {
 
       {/* 主内容区 */}
       <main className="flex-1 flex flex-col">
+        {/* 顶部栏（添加语言选择器） */}
+        <div className="bg-white border-b border-gray-200 px-6 py-3 flex justify-end">
+          <LanguageSelector />
+        </div>
+        
         <div className="p-6">
           <Outlet />
         </div>

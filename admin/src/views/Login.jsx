@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAdminStore } from '../stores/adminStore';
 
 export default function Login() {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ export default function Login() {
     setError('');
 
     if (!username.trim() || !password.trim()) {
-      setError('请输入用户名和密码');
+      setError(t('common.loading')); // 临时占位
       return;
     }
 
@@ -27,7 +29,7 @@ export default function Login() {
       await login(username, password);
       navigate('/');
     } catch (err) {
-      setError(err.message || '登录失败');
+      setError(err.message || t('common.error.loadStats'));
     } finally {
       setLoading(false);
     }
@@ -41,7 +43,7 @@ export default function Login() {
           <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
             🍽️
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">WB食堂管理后台</h1>
+          <h1 className="text-2xl font-bold text-gray-800">{t('common.appName')}</h1>
           <p className="text-gray-500 mt-1">食材下单系统</p>
         </div>
 

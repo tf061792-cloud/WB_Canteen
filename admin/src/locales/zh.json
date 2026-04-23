@@ -57,15 +57,16 @@
     }
   },
   "menu": {
-    "dashboard": "工作台",
+    "dashboard": "首页",
     "orders": "订单管理",
     "products": "商品管理",
     "categories": "分类管理",
     "customers": "客户管理",
+    "finance": "财务分析",
     "distribution": "分销管理",
-    "adminUsers": "后台用户",
-    "permissions": "权限配置",
-    "banners": "广告管理",
+    "adminUsers": "管理员",
+    "permissions": "权限管理",
+    "banners": "轮播图",
     "siteInfo": "网站信息"
   },
   "roles": {
