@@ -1,33 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/picker/assets/(.*)",
-      "dest": "/picker/assets/$1"
-    },
-    {
-      "src": "/picker/(.*)",
-      "dest": "/picker/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/picker/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    }
-  ]
+  "framework": null,
+  "buildCommand": "pnpm install && pnpm build",
+  "installCommand": "pnpm install",
+  "outputDirectory": "dist"
 }
