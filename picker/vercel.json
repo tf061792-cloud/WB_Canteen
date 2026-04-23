@@ -11,13 +11,17 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "src": "/picker/assets/(.*)",
+      "dest": "/picker/assets/$1"
+    },
+    {
+      "src": "/picker/(.*)",
+      "dest": "/picker/$1"
     }
   ],
   "headers": [
     {
-      "source": "/assets/(.*)",
+      "source": "/picker/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
