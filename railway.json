@@ -5,5 +5,10 @@
   "deploy": {
     "startCommand": "node src/index.js",
     "rootDirectory": "server"
+  },
+  "envVars": {
+    "PORT": {
+      "default": "3006"
+    }
   }
 }
