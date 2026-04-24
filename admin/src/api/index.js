@@ -115,7 +115,7 @@ export const pickerAPI = {
 };
 
 export const pricingAPI = {
-  list: (params) => api.get('/api/admin/pricing', { params }),
+  list: (params) => api.get('/api/admin/pricing/products', { params }),
   getPricing: () => api.get('/api/admin/pricing'),
   updatePricing: (data) => api.put('/api/admin/pricing', data)
 };
