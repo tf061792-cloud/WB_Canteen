@@ -5,15 +5,16 @@ export const useCartStore = create(
   persist(
     (set, get) => ({
       items: [],
+      itemCount: 0,  // 商品种类数量
+      totalCount: 0, // 总数量
       
-      // 购物车商品种类数量（不同商品的数量）
-      get itemCount() {
-        return get().items.length;
-      },
-      
-      // 购物车总数量（所有商品的数量总和）
-      get totalCount() {
-        return get().items.reduce((sum, item) => sum + item.quantity, 0);
+      // 更新计算值
+      updateCounts: () => {
+        const items = get().items;
+        set({
+          itemCount: items.length,
+          totalCount: items.reduce((sum, item) => sum + item.quantity, 0)
+        });
       },
       
       // 添加商品到购物车
@@ -38,6 +39,7 @@ export const useCartStore = create(
         }
         
         set({ items: [...items] });
+        get().updateCounts(); // 更新计数
       },
       
       // 更新数量
@@ -53,22 +55,20 @@ export const useCartStore = create(
             : item
         );
         set({ items });
+        get().updateCounts(); // 更新计数
       },
       
       // 移除商品
       removeItem: (productId) => {
         const items = get().items.filter(item => item.product_id !== productId);
         set({ items });
+        get().updateCounts(); // 更新计数
       },
       
       // 清空购物车
       clearCart: () => {
         set({ items: [] });
-      },
-      
-      // 获取购物车总数量（所有商品的数量总和）
-      getTotalCount: () => {
-        return get().totalCount;
+        get().updateCounts(); // 更新计数
       },
       
       // 获取购物车总金额
@@ -77,7 +77,14 @@ export const useCartStore = create(
       }
     }),
     {
-      name: 'cart-storage'
+      name: 'cart-storage',
+      onRehydrateStorage: () => (state) => {
+        // 重新hydrate后更新计数
+        if (state && state.items) {
+          state.itemCount = state.items.length;
+          state.totalCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
+        }
+      }
     }
   )
 );
