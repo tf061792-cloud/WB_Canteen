@@ -326,7 +326,7 @@ export default function PickOrder() {
       <div className="mx-2 space-y-1.5">
         {pickItems.map((item, index) => (
           <div 
-            key={item.product_id} 
+            key={item.id || item.product_id || `item-${index}`} 
             className={`bg-white rounded-md p-2 shadow-sm border-l-2 ${item.checked ? 'border-l-green-500' : 'border-l-gray-200'}`}
           >
             {/* 第一行：勾选 + 商品名 + 数量 */}

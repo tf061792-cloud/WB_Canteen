@@ -145,11 +145,17 @@ export default function ProductManage() {
       console.log('[DEBUG] fetchProducts called with params:', params);
       
       const res = await pricingAPI.list(params);
-      console.log('[DEBUG] API response:', { listLength: res.data?.list?.length, total: res.data?.total, page: res.data?.page });
+      console.log('[DEBUG] API response:', res);
+      console.log('[DEBUG] API response data:', res.data);
+      console.log('[DEBUG] API response list:', res.data?.list);
       
-      if (res.code === 200) {
+      if (res.code === 200 && res.data?.list) {
         setProducts(res.data.list);
-        setTotal(res.data.total);
+        setTotal(res.data.total || 0);
+      } else {
+        console.error('API 响应格式错误:', res);
+        setProducts([]);
+        setTotal(0);
       }
     } catch (error) {
       console.error('获取商品列表失败:', error);

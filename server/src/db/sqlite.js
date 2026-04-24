@@ -4,8 +4,10 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 
-// 使用项目内的 data 目录（开发环境）或持久卷（生产环境）
-const dbDir = process.env.NODE_ENV === 'production' ? '/data' : path.join(__dirname, '../../data');
+// 使用持久卷（生产环境）或项目内的 data 目录（开发环境）
+// 检查是否存在 RAILWAY_VOLUME_MOUNT_PATH 环境变量，这是 Railway 部署的标志
+const useVolume = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.NODE_ENV === 'production';
+const dbDir = useVolume ? '/data' : path.join(__dirname, '../../data');
 const dbPath = path.join(dbDir, 'canteen.db');
 
 // 打印调试信息

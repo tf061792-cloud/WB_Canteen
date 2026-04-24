@@ -175,7 +175,7 @@ export default function OrderList() {
                     {order.items?.length || 0} {t('common.items')}
                   </span>
                   <span className="text-lg font-bold text-orange-500">
-                    ฿{order.total_amount}
+                    ฿{order.total_amount || 0}
                   </span>
                 </div>
               </div>
