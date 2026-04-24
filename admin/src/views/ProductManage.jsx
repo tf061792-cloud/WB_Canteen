@@ -692,7 +692,7 @@ export default function ProductManage() {
           status: 'active'
         };
         
-        await productAPI.add(productData);
+        await productAPI.createProduct(productData);
         successCount++;
       } catch (error) {
         failCount++;

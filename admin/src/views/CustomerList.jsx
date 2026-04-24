@@ -39,7 +39,7 @@ function CustomerList() {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const res = await adminAPI.get(`/admin/customers?page=${page}&pageSize=${pageSize}&keyword=${keyword}`);
+      const res = await adminAPI.getCustomers({ page, pageSize, keyword });
       if (res.code === 200) {
         setCustomers(res.data.list);
         setTotal(res.data.total);
