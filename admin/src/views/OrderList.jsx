@@ -408,30 +408,54 @@ export default function OrderList() {
 
     try {
       setEditLoading(true);
+      
+      console.log('🔍 检查editingItems:', editingItems);
+      console.log('🔍 editingItems类型:', typeof editingItems);
+      console.log('🔍 editingItems是否为数组:', Array.isArray(editingItems));
+      console.log('🔍 editingItems数量:', editingItems?.length || 0);
+      
+      if (!editingItems || editingItems.length === 0) {
+        alert('没有商品明细可保存');
+        return;
+      }
+      
       // 准备保存数据，将display_quantity映射到quantity和actual_qty
       const saveItems = editingItems.map(item => ({
         product_id: item.product_id || 0,
         product_name: item.product_name || '',
         name_th: item.name_th || '',
         specs: item.specs || '',
-        price: item.price || 0,
-        quantity: item.display_quantity || 0,
-        actual_qty: item.display_quantity || 0,
+        price: Number(item.price) || 0,
+        quantity: Number(item.display_quantity) || 0,
+        actual_qty: Number(item.display_quantity) || 0,
         unit: item.unit || '',
-        subtotal: (item.price || 0) * (item.display_quantity || 0)
+        subtotal: (Number(item.price) || 0) * (Number(item.display_quantity) || 0)
       }));
       
       console.log('📋 准备保存的订单明细:', saveItems);
       console.log('📋 计算的总金额:', calculateTotal());
+      console.log('📋 准备发送的数据:', JSON.stringify({ items: saveItems }));
       
-      const res = await orderAPI.updateItems(selectedOrder.id, {
-        items: saveItems
-        // 注意：后端自己计算total，不需要传
+      // 临时：直接调用API而不是通过orderAPI，看是否有效
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      console.log('🌐 API URL:', `${API_BASE_URL}/api/orders/admin/${selectedOrder.id}/update-items`);
+      
+      const token = localStorage.getItem('admin_token');
+      console.log('🔑 Token:', token ? '存在' : '不存在');
+      
+      const res = await fetch(`${API_BASE_URL}/api/orders/admin/${selectedOrder.id}/update-items`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ items: saveItems })
       });
       
-      console.log('📋 服务器响应:', res);
+      const result = await res.json();
+      console.log('📋 服务器响应:', result);
       
-      if (res.code === 200) {
+      if (result.code === 200) {
         alert('保存成功');
         setShowEditModal(false);
         loadOrders();
@@ -443,7 +467,7 @@ export default function OrderList() {
           });
         }
       } else {
-        alert(res.message || '保存失败');
+        alert(result.message || '保存失败');
       }
     } catch (error) {
       console.error('❌ 保存失败:', error);
