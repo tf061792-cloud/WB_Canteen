@@ -22,7 +22,7 @@ export default function AddressManage() {
 
   const fetchAddresses = async () => {
     try {
-      const res = await addressAPI.list();
+      const res = await addressAPI.getAddresses();
       if (res.code === 200) {
         setAddresses(res.data || []);
       }
@@ -37,9 +37,9 @@ export default function AddressManage() {
     e.preventDefault();
     try {
       if (editingAddress) {
-        await addressAPI.update(editingAddress.id, formData);
+        await addressAPI.updateAddress(editingAddress.id, formData);
       } else {
-        await addressAPI.create(formData);
+        await addressAPI.createAddress(formData);
       }
       setShowForm(false);
       setEditingAddress(null);
@@ -64,7 +64,7 @@ export default function AddressManage() {
   const handleDelete = async (id) => {
     if (!confirm('确定要删除这个收货地址吗？')) return;
     try {
-      await addressAPI.delete(id);
+      await addressAPI.deleteAddress(id);
       fetchAddresses();
     } catch (error) {
       alert('删除失败');

@@ -110,6 +110,40 @@ router.put('/:id', userAuth, (req, res) => {
   }
 });
 
+// 设置默认收货地址
+router.put('/:id/default', userAuth, (req, res) => {
+  try {
+    const db = getDb();
+    const userId = req.user.id;
+    const addressId = req.params.id;
+    
+    // 检查地址是否属于当前用户
+    const existing = db.prepare(`
+      SELECT * FROM user_addresses WHERE id = ? AND user_id = ?
+    `).get(addressId, userId);
+    
+    if (!existing) {
+      return res.status(404).json({ code: 404, message: '地址不存在' });
+    }
+    
+    // 将其他地址设为非默认
+    db.prepare(`
+      UPDATE user_addresses SET is_default = 0 WHERE user_id = ?
+    `).run(userId);
+    
+    // 将指定地址设为默认
+    db.prepare(`
+      UPDATE user_addresses SET is_default = 1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND user_id = ?
+    `).run(addressId, userId);
+    
+    res.json({ code: 200, message: '设置成功' });
+  } catch (error) {
+    console.error('设置默认地址失败:', error);
+    res.status(500).json({ code: 500, message: '服务器错误' });
+  }
+});
+
 // 删除收货地址
 router.delete('/:id', userAuth, (req, res) => {
   try {
