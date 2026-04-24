@@ -68,6 +68,9 @@ router.get('/orders', pickerAuth, async (req, res) => {
     const { status = 'confirmed', search = '' } = req.query
     const db = getDb()
     
+    // 支持多状态查询
+    const statuses = Array.isArray(status) ? status : status.split(',').map(s => s.trim())
+    
     let sql = `
       SELECT 
         o.id, o.order_no, o.total as total_amount, o.status, o.created_at,
@@ -75,9 +78,9 @@ router.get('/orders', pickerAuth, async (req, res) => {
         u.id as user_id, u.username, u.nickname
       FROM orders o
       LEFT JOIN users u ON o.user_id = u.id
-      WHERE o.status = ?
+      WHERE o.status IN (${statuses.map(() => '?').join(',')})
     `
-    const params = [status]
+    const params = [...statuses]
     
     if (search) {
       sql += ` AND (o.order_no LIKE ? OR u.username LIKE ? OR u.nickname LIKE ?)`
@@ -85,6 +88,9 @@ router.get('/orders', pickerAuth, async (req, res) => {
     }
     
     sql += ` ORDER BY o.created_at DESC`
+    
+    console.log('[picker/orders] 查询SQL:', sql)
+    console.log('[picker/orders] 查询参数:', params)
     
     const orders = db.prepare(sql).all(...params)
     
@@ -97,6 +103,8 @@ router.get('/orders', pickerAuth, async (req, res) => {
       `).all(order.id)
       order.items = items
     }
+    
+    console.log('[picker/orders] 查询结果数量:', orders.length)
     
     res.json({ success: true, data: orders })
   } catch (error) {

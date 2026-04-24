@@ -266,6 +266,16 @@ export default function PickOrder() {
   // 判断是否为已配货订单（只能查看不能修改）
   const isCompletedOrder = order.status === 'picked' || order.status === 'shipped' || order.status === 'completed'
   
+  // 获取订单状态文本
+  const getStatusLabel = (status) => {
+    const map = {
+      picked: '已配货',
+      shipped: '已发货',
+      completed: '已完成'
+    }
+    return map[status] || '已配货'
+  }
+  
   return (
     <div className="min-h-screen bg-gray-100 pb-16">
       {/* 头部 */}
@@ -281,7 +291,7 @@ export default function PickOrder() {
             <h1 className="text-xs font-bold">#{order.order_no}</h1>
             {isCompletedOrder && (
               <span className="text-[10px] px-1.5 py-0.5 bg-green-100 text-green-600 rounded">
-                已配货
+                {getStatusLabel(order.status)}
               </span>
             )}
           </div>

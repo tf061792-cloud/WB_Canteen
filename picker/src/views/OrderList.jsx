@@ -23,8 +23,9 @@ export default function OrderList() {
       // 待配货: confirmed, 已配货: picked/shipped
       const statusMap = {
         pending: 'confirmed',
-        shipped: 'picked'  // 已配货页面查询 picked 状态
+        shipped: 'picked,shipped'  // 已配货页面查询 picked 和 shipped 状态
       }
+      
       const res = await pickerAPI.getOrders({ 
         status: statusMap[activeTab] || 'confirmed',
         search: searchQuery 
@@ -48,8 +49,9 @@ export default function OrderList() {
   const getStatusText = (status) => {
     const map = {
       confirmed: t('order.pending'),
-      shipped: t('order.picking'),
-      completed: t('order.completed')
+      picked: t('order.picking'),
+      shipped: '已发货',
+      completed: '已完成'
     }
     return map[status] || status
   }
@@ -57,7 +59,8 @@ export default function OrderList() {
   const getStatusColor = (status) => {
     const map = {
       confirmed: 'bg-orange-100 text-orange-600',
-      shipped: 'bg-blue-100 text-blue-600',
+      picked: 'bg-blue-100 text-blue-600',
+      shipped: 'bg-purple-100 text-purple-600',
       completed: 'bg-green-100 text-green-600'
     }
     return map[status] || 'bg-gray-100 text-gray-600'
