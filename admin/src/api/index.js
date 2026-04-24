@@ -80,22 +80,34 @@ export const orderAPI = {
   getOrderStats: () => api.get('/api/orders/admin/stats'),
   stats: () => api.get('/api/orders/admin/stats'),
   updateOrder: (id, data) => api.put(`/api/orders/${id}`, data),
+  update: (id, data) => api.put(`/api/orders/${id}`, data), // 兼容 OrderList 调用
   confirmOrder: (id) => api.post(`/api/orders/${id}/confirm`),
+  confirm: (id) => api.post(`/api/orders/${id}/confirm`), // 兼容 OrderList 调用
   cancelOrder: (id) => api.post(`/api/orders/${id}/cancel`),
+  cancel: (id) => api.post(`/api/orders/${id}/cancel`), // 兼容 OrderList 调用
   shipOrder: (id) => api.post(`/api/orders/${id}/ship`),
+  ship: (id) => api.post(`/api/orders/${id}/ship`), // 兼容 OrderList 调用
   completeOrder: (id) => api.post(`/api/orders/${id}/complete`),
+  complete: (id) => api.post(`/api/orders/${id}/complete`), // 兼容 OrderList 调用
+  receive: (id) => api.post(`/api/orders/${id}/complete`), // 兼容 OrderList 调用
   updateOrderItems: (id, data) => api.post(`/api/orders/admin/${id}/update-items`),
-  pickOrder: (id, data) => api.post(`/api/orders/admin/${id}/pick`)
+  updateItems: (id, data) => api.post(`/api/orders/admin/${id}/update-items`), // 兼容 OrderList 调用
+  pickOrder: (id, data) => api.post(`/api/orders/admin/${id}/pick`),
+  pick: (id, data) => api.post(`/api/orders/admin/${id}/pick`) // 兼容 OrderList 调用
 };
 
 export const productAPI = {
   list: (params) => api.get('/api/products', { params }),
   getProducts: (params) => api.get('/api/products', { params }),
   getProduct: (id) => api.get(`/api/products/${id}`),
+  getById: (id) => api.get(`/api/products/${id}`), // 兼容 OrderList 调用
   createProduct: (data) => api.post('/api/products', data),
   updateProduct: (id, data) => api.put(`/api/products/${id}`, data),
   deleteProduct: (id) => api.delete(`/api/products/${id}`),
   update: (id, data) => api.put(`/api/products/${id}`, data), // 兼容 CategoryList 调用
+  
+  // 搜索商品
+  searchByName: (name) => api.get('/api/products/search/by-name', { params: { name } }),
   
   // 分类管理
   getCategories: () => api.get('/api/products/categories'),

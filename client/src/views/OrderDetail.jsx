@@ -29,7 +29,7 @@ export default function OrderDetail() {
   const loadOrderDetail = async () => {
     try {
       setLoading(true);
-      const res = await orderAPI.detail(id);
+      const res = await orderAPI.getOrderDetail(id);
       if (res.code === 200) {
         setOrder(res.data);
       }
@@ -45,7 +45,7 @@ export default function OrderDetail() {
     if (!confirm('确定要取消该订单吗？')) return;
     try {
       setActionLoading('cancel');
-      const res = await orderAPI.cancel(id);
+      const res = await orderAPI.cancelOrder(id);
       if (res.code === 200) {
         alert('订单已取消');
         loadOrderDetail();
@@ -64,7 +64,7 @@ export default function OrderDetail() {
     if (!confirm('确认已收到商品吗？')) return;
     try {
       setActionLoading('receive');
-      const res = await orderAPI.receive(id);
+      const res = await orderAPI.receiveOrder(id);
       if (res.code === 200) {
         alert('订单已完成');
         loadOrderDetail();
@@ -83,7 +83,7 @@ export default function OrderDetail() {
     if (!confirm('确认订单吗？确认后将进入配货流程。')) return;
     try {
       setActionLoading('confirm');
-      const res = await orderAPI.confirm(id);
+      const res = await orderAPI.confirmOrder(id);
       if (res.code === 200) {
         alert('订单已确认');
         loadOrderDetail();
