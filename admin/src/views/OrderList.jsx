@@ -78,51 +78,64 @@ export default function OrderList() {
   };
 
   const handleExport = (order) => {
-    // 按照用户要求的格式导出
+    // 按照HM供应链配送明细格式导出
     const formatPrice = (price) => {
       return `฿ ${Number(price).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     const rows = [];
     
-    // 订单信息行
+    // 标题行
+    rows.push(['', '', 'HM供应链配送明细', '', '', '']);
+    
+    // 订单信息第一行
     rows.push([
-      order.user_name || order.username || '-',
-      order.phone || '-',
-      `采购订单明细`,
+      '收货人',
+      order.contact || order.user_name || order.username || '-',
+      '订单编号',
       order.order_no,
-      new Date(order.created_at).toISOString().slice(0, 10),
+      '金额合计',
       formatPrice(order.total)
+    ]);
+    
+    // 订单信息第二行
+    rows.push([
+      '联系方式',
+      order.phone || '-',
+      '订单时间',
+      new Date(order.created_at).toISOString().slice(0, 10).replace(/-/g, '/'),
+      '',
+      ''
     ]);
     
     // 空行
     rows.push(['', '', '', '', '', '']);
     
     // 商品表头
-    rows.push(['商品名称', '泰文名称', '数量', '单价', '小计']);
+    rows.push(['商品名称', '泰文名称', '数量', '单价', '小计', '']);
     
     // 商品数据
     const items = order.items || [];
     items.forEach(item => {
+      const subtotal = Number(item.price) * item.quantity;
       rows.push([
         item.product_name,
         item.name_th || '-',
         `${item.quantity}${item.unit || '件'}`,
-        `฿ ${Number(item.price).toFixed(2)}`,
-        formatPrice(Number(item.price) * item.quantity)
+        formatPrice(item.price),
+        formatPrice(subtotal),
+        ''
       ]);
     });
     
-    // 空行
-    rows.push(['', '', '', '', '', '']);
-
+    // 添加BOM并生成CSV
     const BOM = '\uFEFF';
     let csvContent = BOM;
-
+    
     rows.forEach(row => {
       csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
     });
-
+    
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
