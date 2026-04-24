@@ -165,12 +165,23 @@ export default function ProductManage() {
     return (cost + profit).toFixed(2);
   };
 
-  // 处理图片URL - 本地图片特殊处理，外部图片直接返回（使用 referrerPolicy 解决防盗链）
+  // 处理图片URL - 本地图片特殊处理，外部图片处理CORS问题
   const getImageUrl = (url) => {
     if (!url) return '';
     // 本地图片直接返回
     if (url.startsWith('/uploads/') || url.startsWith('/api/')) return url;
-    // 外部图片直接返回（前端使用 referrerPolicy="no-referrer"）
+    
+    // 处理 Google Drive 图片的 CORS 问题
+    if (url.includes('drive.google.com/uc?export=view&id=')) {
+      // 提取文件ID
+      const match = url.match(/id=([^&]+)/);
+      if (match && match[1]) {
+        // 使用 Googleusercontent 格式
+        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+      }
+    }
+    
+    // 其他外部图片直接返回
     return url;
   };
 
