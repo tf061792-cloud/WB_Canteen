@@ -7,6 +7,17 @@ import { useUserStore } from '../stores/userStore';
 const PLACEHOLDER_SVG = '<svg width="56" height="56" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f5f5f5"/><text x="50%" y="50%" font-family="Arial" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="#999">暂无</text></svg>';
 const getPlaceholderSrc = () => 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(PLACEHOLDER_SVG)));
 
+  // 处理图片URL - 本地图片特殊处理
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    // 本地图片需要加上完整的API前缀
+    if (url.startsWith('/uploads/')) {
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      return `${API_BASE_URL}${url}`;
+    }
+    return url;
+  };
+
 // 货到付款状态映射
 const STATUS_MAP = {
   confirmed: { label: '已确认', color: 'bg-blue-500', text: 'text-blue-600', bg: 'bg-blue-50' },
@@ -195,7 +206,7 @@ export default function OrderList() {
                   <div key={item.id} className="flex items-center gap-3 py-2">
                     <div className="w-14 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                       <img
-                        src={item.image || getPlaceholderSrc()}
+                        src={getImageUrl(item.image) || getPlaceholderSrc()}
                         alt={item.product_name}
                         className="w-14 h-14 object-cover"
                         onError={(e) => {

@@ -6,6 +6,17 @@ import { orderAPI } from '../api/index';
 const PLACEHOLDER_SVG = '<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f5f5f5"/><text x="50%" y="50%" font-family="Arial" font-size="14" text-anchor="middle" dominant-baseline="middle" fill="#999">暂无</text></svg>';
 const getPlaceholderSrc = () => 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(PLACEHOLDER_SVG)));
 
+  // 处理图片URL - 本地图片特殊处理
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    // 本地图片需要加上完整的API前缀
+    if (url.startsWith('/uploads/')) {
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      return `${API_BASE_URL}${url}`;
+    }
+    return url;
+  };
+
 // 货到付款状态映射
 const STATUS_MAP = {
   pending: { label: '待确认', color: 'text-orange-600', bg: 'bg-orange-50', desc: '请确认订单，确认后将进入配货流程' },
@@ -256,7 +267,7 @@ export default function OrderDetail() {
             <div key={item.id} className="flex gap-3">
               <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                 <img
-                  src={item.image || getPlaceholderSrc()}
+                  src={getImageUrl(item.image) || getPlaceholderSrc()}
                   alt={item.product_name}
                   className="w-20 h-20 object-cover"
                   onError={(e) => {

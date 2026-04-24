@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
 import { productAPI } from '../api/index';
 
+  // 处理图片URL - 本地图片特殊处理
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    // 本地图片需要加上完整的API前缀
+    if (url.startsWith('/uploads/')) {
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      return `${API_BASE_URL}${url}`;
+    }
+    return url;
+  };
+
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -158,7 +169,7 @@ export default function ProductList() {
                     <div className="flex items-center">
                       <div className="w-8 h-8 bg-gray-100 rounded overflow-hidden mr-2 flex-shrink-0">
                         <img
-                          src={product.image}
+                          src={getImageUrl(product.image)}
                           alt={product.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {

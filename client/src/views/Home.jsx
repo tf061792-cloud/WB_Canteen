@@ -96,8 +96,12 @@ export default function Home() {
   // 处理图片URL - 本地图片特殊处理，外部图片处理CORS问题
   const getImageUrl = (url) => {
     if (!url) return '';
-    // 本地图片直接返回
-    if (url.startsWith('/uploads/') || url.startsWith('/api/')) return url;
+    // 本地图片需要加上完整的API前缀
+    if (url.startsWith('/uploads/')) {
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      return `${API_BASE_URL}${url}`;
+    }
+    if (url.startsWith('/api/')) return url;
     
     // 处理 Google Drive 图片的 CORS 问题
     if (url.includes('drive.google.com/uc?export=view&id=')) {

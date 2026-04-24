@@ -2,6 +2,17 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../stores/cartStore';
 
+  // 处理图片URL - 本地图片特殊处理
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    // 本地图片需要加上完整的API前缀
+    if (url.startsWith('/uploads/')) {
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      return `${API_BASE_URL}${url}`;
+    }
+    return url;
+  };
+
 export default function Cart() {
   const { items, updateQuantity, removeItem, clearCart, getTotalPrice } = useCartStore();
   const [loading, setLoading] = useState(false);
@@ -56,7 +67,7 @@ export default function Cart() {
           <div key={item.product_id} className="bg-white rounded-lg p-2 flex gap-2">
             <div className="w-14 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
               <img
-                src={item.image}
+                src={getImageUrl(item.image)}
                 alt={item.name}
                 className="w-14 h-14 object-cover"
                 onError={(e) => {

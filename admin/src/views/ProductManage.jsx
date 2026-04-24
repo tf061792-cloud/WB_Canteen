@@ -175,8 +175,12 @@ export default function ProductManage() {
   // 处理图片URL - 本地图片特殊处理，外部图片处理CORS问题
   const getImageUrl = (url) => {
     if (!url) return '';
-    // 本地图片直接返回
-    if (url.startsWith('/uploads/') || url.startsWith('/api/')) return url;
+    // 本地图片需要加上完整的API前缀
+    if (url.startsWith('/uploads/')) {
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      return `${API_BASE_URL}${url}`;
+    }
+    if (url.startsWith('/api/')) return url;
     
     // 处理 Google Drive 图片的 CORS 问题
     if (url.includes('drive.google.com/uc?export=view&id=')) {
@@ -265,15 +269,19 @@ export default function ProductManage() {
         status: formData.status || 'active'
       };
       
+      console.log('📤 准备保存的商品数据:', submitData);
+      
       if (editingProduct) {
         // 先更新前端列表，提供即时反馈
         setProducts(prev => prev.map(product => 
           product.id === editingProduct.id ? { ...product, ...submitData } : product
         ));
         
-        await productAPI.update(editingProduct.id, submitData);
+        const res = await productAPI.updateProduct(editingProduct.id, submitData);
+        console.log('📥 更新商品响应:', res);
       } else {
-        const res = await productAPI.add(submitData);
+        const res = await productAPI.createProduct(submitData);
+        console.log('📥 添加商品响应:', res);
         if (res.code === 200) {
           // 先添加到前端列表，提供即时反馈
           const newProduct = {
@@ -294,6 +302,7 @@ export default function ProductManage() {
       await fetchProducts();
       showToast(editingProduct ? '更新成功' : '添加成功', 'success');
     } catch (error) {
+      console.error('❌ 保存商品失败:', error);
       // 如果发生错误，重新加载商品列表
       await fetchProducts();
       showToast('操作失败', 'error');
@@ -331,13 +340,15 @@ export default function ProductManage() {
       // 先从前端列表中移除该商品，提供即时反馈
       setProducts(prev => prev.filter(product => product.id !== id));
       
-      await productAPI.delete(id);
+      const res = await productAPI.deleteProduct(id);
+      console.log('📥 删除商品响应:', res);
       // 清除商品相关缓存，强制刷新数据
       requestCache.clearByPrefix('/products');
       // 重新加载商品，确保数据一致性
       await fetchProducts();
       showToast('删除成功', 'success');
     } catch (error) {
+      console.error('❌ 删除商品失败:', error);
       // 如果发生错误，重新加载商品列表
       await fetchProducts();
       showToast('删除失败', 'error');
@@ -356,7 +367,7 @@ export default function ProductManage() {
       setProducts(prev => prev.filter(product => !selectedProducts.has(product.id)));
       
       // 逐个删除
-      await Promise.all(ids.map(id => productAPI.delete(id)));
+      await Promise.all(ids.map(id => productAPI.deleteProduct(id)));
       setSelectedProducts(new Set());
       // 清除商品相关缓存，强制刷新数据
       requestCache.clearByPrefix('/products');
@@ -365,6 +376,7 @@ export default function ProductManage() {
       setShowBatchDeleteModal(false);
       showToast(`成功删除 ${ids.length} 个商品`, 'success');
     } catch (error) {
+      console.error('❌ 批量删除失败:', error);
       // 如果发生错误，重新加载商品列表
       await fetchProducts();
       showToast('批量删除失败', 'error');
@@ -381,13 +393,15 @@ export default function ProductManage() {
         p.id === product.id ? { ...p, status: newStatus } : p
       ));
       
-      await productAPI.update(product.id, { status: newStatus });
+      const res = await productAPI.updateProduct(product.id, { status: newStatus });
+      console.log('📥 切换商品状态响应:', res);
       // 清除商品相关缓存，强制刷新数据
       requestCache.clearByPrefix('/products');
       // 重新加载商品，确保数据一致性
       await fetchProducts();
       showToast('状态更新成功', 'success');
     } catch (error) {
+      console.error('❌ 切换商品状态失败:', error);
       // 如果发生错误，重新加载商品列表
       await fetchProducts();
       showToast('更新失败', 'error');
