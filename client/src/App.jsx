@@ -24,14 +24,19 @@ function PageLoader() {
   );
 }
 
-// 受保护的路由
+// 受保护的路由 - 等待persist初始化完成
 function ProtectedRoute({ children }) {
-  const { isLoggedIn } = useUserStore();
-  
+  const isLoggedIn = useUserStore((state) => state.isLoggedIn);
+  const hasHydrated = useUserStore((state) => state.hasHydrated);
+
+  if (!hasHydrated) {
+    return <PageLoader />;
+  }
+
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 }
 
@@ -47,7 +52,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/category/:id" element={<Home />} />
             <Route path="/product/:id" element={<Home />} />
-            
+
             {/* 需要登录的路由 */}
             <Route path="/cart" element={
               <ProtectedRoute>

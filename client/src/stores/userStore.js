@@ -8,6 +8,7 @@ export const useUserStore = create(
       user: null,
       token: null,
       isLoggedIn: false,
+      hasHydrated: false,
 
       login: async (username, password) => {
         const res = await authAPI.login({ username, password });
@@ -71,6 +72,10 @@ export const useUserStore = create(
         set((state) => ({
           user: { ...state.user, nickname }
         }));
+      },
+
+      setHasHydrated: () => {
+        set({ hasHydrated: true });
       }
     }),
     {
@@ -79,7 +84,10 @@ export const useUserStore = create(
         user: state.user,
         token: state.token,
         isLoggedIn: state.isLoggedIn
-      })
+      }),
+      onRehydrateStorage: () => (state) => {
+        state.setHasHydrated();
+      }
     }
   )
 );
