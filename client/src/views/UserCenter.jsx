@@ -1,6 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useUserStore } from '../stores/userStore';
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
 
 function getToken() {
   const userStorage = JSON.parse(localStorage.getItem('user-storage') || '{}');
@@ -11,15 +14,15 @@ function getToken() {
 const promoterAPI = {
   getInviteLink: () => {
     const token = getToken();
-    return fetch('/api/promoter/invite-link', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+    return axios.get(`${API_BASE_URL}/api/promoter/invite-link`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.data);
   },
   applyUpgrade: () => {
     const token = getToken();
-    return fetch('/api/promoter/apply-upgrade', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+    return axios.post(`${API_BASE_URL}/api/promoter/apply-upgrade`, {}, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.data);
   },
   getUpgradeStatus: () => {
     const token = getToken();
-    return fetch('/api/promoter/upgrade-status', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+    return axios.get(`${API_BASE_URL}/api/promoter/upgrade-status`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.data);
   },
 };
 
