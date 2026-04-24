@@ -20,6 +20,7 @@ const permissionRoutes = require('./routes/permissions');
 const bannerAdminRoutes = require('./routes/bannerAdmin');
 const pickerRoutes = require('./routes/picker');
 const financeRoutes = require('./routes/finance');
+const adminToolsRoutes = require('./routes/adminTools');
 
 const { adminAuth, userAuth: authenticate } = require('./middleware/auth');
 const { checkPermission } = permissionRoutes; // 引入权限检查中间件
@@ -108,6 +109,7 @@ app.use('/api/admin/permissions', adminAuth, permissionRoutes.router);
 app.use('/api/admin/banners', adminAuth, bannerAdminRoutes);
 app.use('/api/admin/upload', adminAuth, require('./routes/upload'));
 app.use('/api/admin/finance', adminAuth, financeRoutes);
+app.use('/api/admin/tools', adminAuth, adminToolsRoutes);
 
 app.use('/api/picker', pickerRoutes);
 

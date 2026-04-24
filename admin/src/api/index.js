@@ -143,4 +143,8 @@ export const bannerAPI = {
   deleteBanner: (id) => api.delete(`/api/admin/banners/${id}`)
 };
 
+export const toolsAPI = {
+  clearTestData: () => api.post('/api/admin/tools/clear-test-data')
+};
+
 export default api;

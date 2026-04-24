@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { orderAPI } from '../api/index';
+import { orderAPI, toolsAPI } from '../api/index';
+import { useAdminStore } from '../stores/adminStore';
 
 export default function Dashboard() {
   const { t } = useTranslation();
+  const { admin } = useAdminStore();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -23,6 +26,33 @@ export default function Dashboard() {
       console.error(t('common.error.loadStats'), error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearTestData = async () => {
+    if (!window.confirm('⚠️ 确定要清除所有订单数据和分销收益数据吗？此操作不可恢复！')) {
+      return;
+    }
+
+    try {
+      setClearing(true);
+      const res = await toolsAPI.clearTestData();
+      
+      if (res.success) {
+        alert('✅ 测试数据清除成功！\n\n' + 
+              `删除订单: ${res.data.deletedOrders} 条\n` +
+              `删除订单商品: ${res.data.deletedOrderItems} 条\n` +
+              `删除分销收益: ${res.data.deletedEarnings} 条\n` +
+              `删除配货历史: ${res.data.deletedPickingHistory} 条`);
+        
+        // 重新加载统计数据
+        await loadStats();
+      }
+    } catch (error) {
+      console.error('清除测试数据失败:', error);
+      alert('❌ 清除测试数据失败: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -110,21 +140,35 @@ export default function Dashboard() {
       {/* 快捷操作 */}
       <div className="bg-white rounded-xl p-6 shadow-sm mt-6">
         <h2 className="text-lg font-bold text-gray-800 mb-4">{t('dashboard.quickActions')}</h2>
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <Link
             to="/orders"
-            className="flex-1 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            className="flex-1 min-w-[200px] p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
           >
             <span className="text-2xl mr-2">📋</span>
             <span className="text-blue-600 font-medium">{t('dashboard.viewAllOrders')}</span>
           </Link>
           <Link
             to="/products"
-            className="flex-1 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            className="flex-1 min-w-[200px] p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
           >
             <span className="text-2xl mr-2">📦</span>
             <span className="text-green-600 font-medium">{t('dashboard.manageProducts')}</span>
           </Link>
+          
+          {/* 仅超级管理员可见的清除测试数据按钮 */}
+          {admin?.role === 'superadmin' && (
+            <button
+              onClick={handleClearTestData}
+              disabled={clearing}
+              className="flex-1 min-w-[200px] p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="text-2xl mr-2">🗑️</span>
+              <span className="text-red-600 font-medium">
+                {clearing ? '清除中...' : '清除测试数据'}
+              </span>
+            </button>
+          )}
         </div>
       </div>
     </div>
