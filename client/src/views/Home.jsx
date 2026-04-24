@@ -359,9 +359,9 @@ export default function Home() {
           <Link to="/cart" className="flex-1 py-2 flex flex-col items-center text-gray-500 relative">
             <span className="text-xl">🛒</span>
             <span className="text-xs mt-0.5">购物车</span>
-            {totalCount > 0 && (
+            {itemCount > 0 && (
               <span className="absolute top-1 right-1/4 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
-                {totalCount > 99 ? '99+' : totalCount}
+                {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}
           </Link>
