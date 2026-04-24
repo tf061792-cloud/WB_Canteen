@@ -1207,6 +1207,7 @@ export default function ProductManage() {
                       src={getImageUrl(formData.image)}
                       alt="预览"
                       className="w-24 h-24 object-contain rounded border border-gray-200 bg-gray-50"
+                      referrerPolicy="no-referrer"
                       onError={(e) => { 
                         e.target.onerror = null;
                         e.target.src = 'data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"%23f3f4f6\"/><text x=\"50%\" y=\"50%\" text-anchor=\"middle\" dy=\".3em\" fill=\"%239ca3af\" font-size=\"12\">加载失败</text></svg>'; 
@@ -1421,7 +1422,7 @@ export default function ProductManage() {
                       <div className="flex flex-wrap gap-2">
                         {uploadedImages.map((img, idx) => (
                           <div key={idx} className="relative group">
-                            <img src={getImageUrl(img.url)} alt={img.filename} className="w-12 h-12 object-cover rounded border" />
+                            <img src={getImageUrl(img.url)} alt={img.filename} className="w-12 h-12 object-cover rounded border" referrerPolicy="no-referrer" />
                             <span className="text-[10px] text-gray-500 truncate max-w-[60px] block">{img.filename}</span>
                           </div>
                         ))}
@@ -1621,6 +1622,7 @@ function ImageManager({ onClose, onSelect }) {
                 src={img.url} 
                 alt={img.filename}
                 className="w-full h-20 object-cover rounded border cursor-pointer hover:border-blue-500"
+                referrerPolicy="no-referrer"
                 onClick={() => onSelect(img.url)}
               />
               <button
