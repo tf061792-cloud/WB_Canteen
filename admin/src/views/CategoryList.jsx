@@ -300,41 +300,6 @@ export default function CategoryList() {
         </table>
       </div>
 
-      {/* 预设分类说明 */}
-      <div className="mt-6 bg-blue-50 rounded-xl p-4">
-        <h3 className="font-medium text-blue-800 mb-2">预设分类</h3>
-        <div className="grid grid-cols-4 gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <span>🥚</span>
-            <span>禽蛋类</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>🥬</span>
-            <span>蔬菜类</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>🥦</span>
-            <span>进口蔬菜</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>🍎</span>
-            <span>水果类</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>🥩</span>
-            <span>肉类</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>🐟</span>
-            <span>水产类</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>🧂</span>
-            <span>调料干货</span>
-          </div>
-        </div>
-      </div>
-
       {/* 添加/编辑分类弹窗 */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

@@ -366,6 +366,8 @@ async function initDatabase() {
   `);
   console.log('✅ 数据库索引创建完成');
 
+  // 注释掉预设分类的自动插入，保留现有分类
+  /*
   // 只有在数据库文件不存在时才插入预设分类
   if (isNewDatabase) {
     const categories = [
@@ -385,6 +387,7 @@ async function initDatabase() {
     });
     console.log('✅ 默认分类插入完成');
   }
+  */
 
   const adminExists = db.prepare('SELECT id FROM admins WHERE username = ?').get('admin');
   if (!adminExists) {
