@@ -25,16 +25,22 @@ export const usePickerStore = create(
       token: null,
 
       login: (user, token) => {
+        console.log('🔐 登录 - 存储用户和 token:', { user, token });
         set({ user, token });
       },
 
       logout: () => {
+        console.log('🚪 登出');
         set({ user: null, token: null });
       },
 
       setUser: (user) => set({ user }),
 
-      isLoggedIn: () => !!get().token
+      isLoggedIn: () => {
+        const token = get().token;
+        console.log('🔑 检查登录状态:', { token, isLoggedIn: !!token });
+        return !!token;
+      }
     }),
     {
       name: 'picker-storage',
@@ -42,7 +48,12 @@ export const usePickerStore = create(
       partialize: (state) => ({
         user: state.user,
         token: state.token
-      })
+      }),
+      onRehydrateStorage: () => {
+        return (state) => {
+          console.log('💾 从存储中恢复状态:', state);
+        };
+      }
     }
   )
 );

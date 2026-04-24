@@ -37,15 +37,21 @@ function App() {
   const { token, isLoggedIn } = usePickerStore()
   const [isLoading, setIsLoading] = React.useState(true)
   
+  // 打印 token 状态
+  React.useEffect(() => {
+    console.log('🔄 App 组件 - token 状态变化:', { token, isLoggedIn: isLoggedIn() });
+  }, [token, isLoggedIn])
+  
   // 等待 persist 中间件初始化完成
   React.useEffect(() => {
     // 给 persist 中间件一点时间来从 localStorage 加载数据
     const timer = setTimeout(() => {
+      console.log('⏰ 加载完成 - 当前 token:', { token, isLoggedIn: isLoggedIn() });
       setIsLoading(false)
-    }, 100)
+    }, 300) // 增加等待时间到 300ms
     
     return () => clearTimeout(timer)
-  }, [])
+  }, [token, isLoggedIn])
   
   if (isLoading) {
     return (
@@ -57,6 +63,8 @@ function App() {
       </div>
     )
   }
+  
+  console.log('🚀 渲染路由 - token:', { token, isLoggedIn: isLoggedIn() });
   
   return (
     <ErrorBoundary>
