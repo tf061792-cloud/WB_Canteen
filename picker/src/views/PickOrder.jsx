@@ -34,7 +34,7 @@ export default function PickOrder() {
     try {
       setLoadingProducts(true)
       const res = await pickerAPI.getProducts()
-      if (res.code === 200) {
+      if (res.success) {
         // 后端返回的是数组，不是 {list: [...]} 结构
         setProducts(Array.isArray(res.data) ? res.data : [])
       }

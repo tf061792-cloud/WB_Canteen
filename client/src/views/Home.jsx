@@ -32,9 +32,9 @@ export default function Home() {
     try {
       setLoading(true);
       const [catRes, prodRes, bannerRes] = await Promise.all([
-        productAPI.categories(),
-        productAPI.list(),
-        bannerAPI.list()
+        productAPI.getCategories(),
+        productAPI.getProducts(),
+        bannerAPI.getBanners()
       ]);
 
       if (catRes.code === 200) {
