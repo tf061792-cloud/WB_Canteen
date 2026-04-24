@@ -13,9 +13,18 @@ const api = axios.create({
 api.interceptors.request.use(
   config => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      // 从 picker-storage 中获取 token
+      const storageData = localStorage.getItem('picker-storage');
+      if (storageData) {
+        try {
+          const state = JSON.parse(storageData);
+          const token = state.token;
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch (error) {
+          console.error('解析存储数据失败:', error);
+        }
       }
     }
     return config;
@@ -31,9 +40,9 @@ api.interceptors.response.use(
   },
   error => {
     if (typeof window !== 'undefined' && error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('picker');
-      window.location.href = '/picker/login';
+      // 从 picker-storage 中清除 token
+      localStorage.removeItem('picker-storage');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

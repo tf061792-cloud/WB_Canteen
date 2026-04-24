@@ -3,27 +3,10 @@ import { authAPI } from '../api/index';
 
 console.log('🏪 useAdminStore 初始化 (无 persist)');
 
-// 从 localStorage 恢复状态
-const getInitialState = () => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('admin_token');
-    const adminStr = localStorage.getItem('admin');
-    const admin = adminStr ? JSON.parse(adminStr) : null;
-    return {
-      admin,
-      token,
-      isLoggedIn: !!token
-    };
-  }
-  return {
-    admin: null,
-    token: null,
-    isLoggedIn: false
-  };
-};
-
 export const useAdminStore = create((set, get) => ({
-  ...getInitialState(),
+  admin: null,
+  token: null,
+  isLoggedIn: false,
 
   login: async (username, password) => {
     console.log('🔐 尝试登录:', username);
@@ -31,18 +14,6 @@ export const useAdminStore = create((set, get) => ({
     if (res.code === 200) {
       const { data } = res;
       console.log('✅ 登录成功:', data);
-      
-      // 保存到 localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('admin_token', data.token);
-        localStorage.setItem('admin', JSON.stringify({
-          id: data.id,
-          username: data.username,
-          nickname: data.nickname,
-          role: data.role
-        }));
-      }
-      
       set({
         admin: {
           id: data.id,
@@ -71,13 +42,6 @@ export const useAdminStore = create((set, get) => ({
 
   logout: () => {
     console.log('🚪 登出');
-    
-    // 清除 localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('admin');
-    }
-    
     set({
       admin: null,
       token: null,

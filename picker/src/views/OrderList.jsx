@@ -29,13 +29,15 @@ export default function OrderList() {
         status: statusMap[activeTab] || 'confirmed',
         search: searchQuery 
       })
-      if (res.success) {
-        setOrders(res.data || [])
+      console.log('[DEBUG] OrderList API response:', res);
+      if (res.success || res.code === 200) {
+        setOrders(res.data || []);
       }
     } catch (err) {
-      console.error('获取订单失败:', err)
+      console.error('获取订单失败:', err);
+      console.error('错误详情:', err.response?.data);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
   
