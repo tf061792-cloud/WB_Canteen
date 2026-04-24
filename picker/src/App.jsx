@@ -34,7 +34,29 @@ class ErrorBoundary extends Component {
 }
 
 function App() {
-  const { token } = usePickerStore()
+  const { token, isLoggedIn } = usePickerStore()
+  const [isLoading, setIsLoading] = React.useState(true)
+  
+  // 等待 persist 中间件初始化完成
+  React.useEffect(() => {
+    // 给 persist 中间件一点时间来从 localStorage 加载数据
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-500">加载中...</p>
+        </div>
+      </div>
+    )
+  }
   
   return (
     <ErrorBoundary>
