@@ -28,6 +28,10 @@ export default function Home() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    console.log('[DEBUG] Banners updated:', banners);
+  }, [banners]);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -47,7 +51,10 @@ export default function Home() {
         setProducts(prodRes.data);
       }
       if (bannerRes.code === 200) {
+        console.log('[DEBUG] Banners loaded:', bannerRes.data);
         setBanners(bannerRes.data);
+      } else {
+        console.error('[DEBUG] Banner API error:', bannerRes);
       }
     } catch (error) {
       console.error('加载数据失败:', error);
@@ -173,7 +180,9 @@ export default function Home() {
                     src={banner.image}
                     alt={banner.title}
                     className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
                     onError={(e) => {
+                      console.error('[DEBUG] Banner image load error:', banner.image);
                       e.target.style.display = 'none';
                     }}
                   />
