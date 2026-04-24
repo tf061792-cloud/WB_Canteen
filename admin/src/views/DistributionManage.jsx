@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { adminAPI } from '../api';
+import { adminAPI } from '../api/index';
 
 export default function DistributionManage() {
   const [promoters, setPromoters] = useState([]);

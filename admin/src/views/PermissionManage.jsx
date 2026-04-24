@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { adminAPI } from '../api';
+import { adminAPI } from '../api/index';
 
 const ROLE_NAMES = {
   superadmin: '超级管理员',

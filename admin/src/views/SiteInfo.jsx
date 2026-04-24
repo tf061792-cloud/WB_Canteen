@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { adminAPI } from '../api';
+import { adminAPI } from '../api/index';
 import Toast from '../components/Toast';
 
 export default function SiteInfo() {

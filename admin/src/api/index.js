@@ -33,7 +33,7 @@ api.interceptors.response.use(
     if (typeof window !== 'undefined' && error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('admin');
-      window.location.href = '/admin/login';
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

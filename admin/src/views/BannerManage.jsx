@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { bannerAPI } from '../api';
+import { bannerAPI } from '../api/index';
 
 export default function BannerManage() {
   const [banners, setBanners] = useState([]);
