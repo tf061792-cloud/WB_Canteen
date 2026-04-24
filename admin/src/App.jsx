@@ -58,26 +58,24 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         
         {/* 其他所有页面都需要保护 */}
-        <Route path="/*" element={
+        <Route path="/" element={
           <ProtectedRoute>
-            <Layout>
-              <Routes>
-                <Route index element={<Dashboard />} />
-                <Route path="orders" element={<OrderList />} />
-                <Route path="products" element={<ProductManage />} />
-                <Route path="categories" element={<CategoryList />} />
-                <Route path="customers" element={<CustomerList />} />
-                <Route path="admin-users" element={<AdminUserList />} />
-                <Route path="distribution" element={<DistributionManage />} />
-                <Route path="pricing" element={<ProductManage />} />
-                <Route path="permissions" element={<PermissionManage />} />
-                <Route path="banners" element={<BannerManage />} />
-                <Route path="site-info" element={<SiteInfo />} />
-                <Route path="finance" element={<FinanceAnalysis />} />
-              </Routes>
-            </Layout>
+            <Layout />
           </ProtectedRoute>
-        } />
+        }>
+          <Route index element={<Dashboard />} />
+          <Route path="orders" element={<OrderList />} />
+          <Route path="products" element={<ProductManage />} />
+          <Route path="categories" element={<CategoryList />} />
+          <Route path="customers" element={<CustomerList />} />
+          <Route path="admin-users" element={<AdminUserList />} />
+          <Route path="distribution" element={<DistributionManage />} />
+          <Route path="pricing" element={<ProductManage />} />
+          <Route path="permissions" element={<PermissionManage />} />
+          <Route path="banners" element={<BannerManage />} />
+          <Route path="site-info" element={<SiteInfo />} />
+          <Route path="finance" element={<FinanceAnalysis />} />
+        </Route>
       </Routes>
     </Suspense>
   );
