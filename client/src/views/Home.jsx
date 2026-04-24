@@ -84,6 +84,26 @@ export default function Home() {
 
   const searchResults = searchQuery ? filteredProducts : [];
 
+  // 处理图片URL - 本地图片特殊处理，外部图片处理CORS问题
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    // 本地图片直接返回
+    if (url.startsWith('/uploads/') || url.startsWith('/api/')) return url;
+    
+    // 处理 Google Drive 图片的 CORS 问题
+    if (url.includes('drive.google.com/uc?export=view&id=')) {
+      // 提取文件ID
+      const match = url.match(/id=([^&]+)/);
+      if (match && match[1]) {
+        // 使用 Googleusercontent 格式
+        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+      }
+    }
+    
+    // 其他外部图片直接返回
+    return url;
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <div className="bg-white shadow-sm z-50">
@@ -205,13 +225,14 @@ export default function Home() {
                   >
                     <div className="w-14 h-14 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden relative flex items-center justify-center">
                       <img
-                        src={product.image}
+                        src={getImageUrl(product.image)}
                         alt={product.name}
                         className="max-w-full max-h-full object-contain"
                         onError={(e) => {
                           const svg = `<svg width="56" height="56" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f5f5f5"/><text x="50%" y="50%" font-family="Arial" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="#999">暂无</text></svg>`;
                           e.target.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
                         }}
+                        referrerPolicy="no-referrer"
                       />
                       {product.stock <= 10 && (
                         <div className="absolute top-0 left-0 bg-red-500 text-white text-[10px] px-1 py-0.5 rounded-br">
@@ -269,13 +290,14 @@ export default function Home() {
                     >
                       <div className="w-14 h-14 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden relative flex items-center justify-center">
                         <img
-                          src={product.image}
+                          src={getImageUrl(product.image)}
                           alt={product.name}
                           className="max-w-full max-h-full object-contain"
                           onError={(e) => {
                             const svg = `<svg width="56" height="56" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f5f5f5"/><text x="50%" y="50%" font-family="Arial" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="#999">暂无</text></svg>`;
                             e.target.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
                           }}
+                          referrerPolicy="no-referrer"
                         />
                         {product.stock <= 10 && (
                           <div className="absolute top-0 left-0 bg-red-500 text-white text-[10px] px-1 py-0.5 rounded-br">
