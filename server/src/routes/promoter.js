@@ -71,7 +71,9 @@ router.get('/invite-link', authenticate, (req, res) => {
       user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
     }
 
-    const inviteLink = `http://localhost:3001/register?code=${user.promoter_code}`;
+    // 根据请求来源生成正确的邀请链接
+    const clientUrl = process.env.CLIENT_URL || 'https://wbcanteen-client.vercel.app';
+    const inviteLink = `${clientUrl}/register?code=${user.promoter_code}`;
 
     res.json({
       code: 200,
