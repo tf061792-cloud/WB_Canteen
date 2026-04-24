@@ -13,7 +13,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const { addItem, totalCount } = useCartStore();
+  const { addItem, itemCount } = useCartStore();
   const { isLoggedIn, user } = useUserStore();
   const navigate = useNavigate();
   const categoryRefs = useRef({});
@@ -165,9 +165,9 @@ export default function Home() {
           </div>
           <Link to="/cart" className="relative w-10 h-10 flex items-center justify-center">
             <span className="text-xl">🛒</span>
-            {totalCount > 0 && (
+            {itemCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
-                {totalCount}
+                {itemCount}
               </span>
             )}
           </Link>

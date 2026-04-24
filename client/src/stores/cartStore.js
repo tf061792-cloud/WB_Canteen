@@ -6,6 +6,16 @@ export const useCartStore = create(
     (set, get) => ({
       items: [],
       
+      // 购物车商品种类数量（不同商品的数量）
+      get itemCount() {
+        return get().items.length;
+      },
+      
+      // 购物车总数量（所有商品的数量总和）
+      get totalCount() {
+        return get().items.reduce((sum, item) => sum + item.quantity, 0);
+      },
+      
       // 添加商品到购物车
       addItem: (product, quantity = 1) => {
         const items = get().items;
@@ -56,9 +66,9 @@ export const useCartStore = create(
         set({ items: [] });
       },
       
-      // 获取购物车总数量
+      // 获取购物车总数量（所有商品的数量总和）
       getTotalCount: () => {
-        return get().items.reduce((sum, item) => sum + item.quantity, 0);
+        return get().totalCount;
       },
       
       // 获取购物车总金额
