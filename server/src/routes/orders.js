@@ -840,20 +840,32 @@ router.post('/admin/:id/update-items', adminAuth, (req, res) => {
     const { id } = req.params;
     const { items } = req.body;
 
+    console.log('📋 [更新订单明细] 收到请求:');
+    console.log('📋 订单ID:', id);
+    console.log('📋 items数据:', items);
+    console.log('📋 items类型:', typeof items);
+    console.log('📋 items是否为数组:', Array.isArray(items));
+    console.log('📋 items数量:', items?.length || 0);
+
     if (!items || !Array.isArray(items) || items.length === 0) {
+      console.log('❌ 商品明细验证失败');
       return res.status(400).json({ code: 400, message: '商品明细不能为空' });
     }
 
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
 
     if (!order) {
+      console.log('❌ 订单不存在:', id);
       return res.status(404).json({ code: 404, message: '订单不存在' });
     }
+
+    console.log('✅ 找到订单:', order.order_no);
 
     // 开始事务
     let total = 0;
 
     // 删除原有商品明细
+    console.log('🗑️ 删除原有商品明细');
     db.prepare('DELETE FROM order_items WHERE order_id = ?').run(id);
 
     // 插入新的商品明细
@@ -862,6 +874,7 @@ router.post('/admin/:id/update-items', adminAuth, (req, res) => {
     );
 
     for (const item of items) {
+      console.log('📦 处理商品:', item);
       const subtotal = (item.price || 0) * (item.quantity || 0);
       total += subtotal;
 
@@ -877,9 +890,11 @@ router.post('/admin/:id/update-items', adminAuth, (req, res) => {
         item.unit || '',
         subtotal
       );
+      console.log('✅ 插入商品:', item.product_name, '数量:', item.quantity, '小计:', subtotal);
     }
 
     // 更新订单总金额
+    console.log('💵 更新订单总金额:', total);
     db.prepare(
       'UPDATE orders SET total = ?, updated_at = datetime("now") WHERE id = ?'
     ).run(total, id);
@@ -889,9 +904,10 @@ router.post('/admin/:id/update-items', adminAuth, (req, res) => {
     // 清除订单相关缓存
     clearRelatedCaches.orders();
 
+    console.log('✅ 更新订单明细成功');
     res.json({ code: 200, message: '订单明细更新成功', data: { total } });
   } catch (error) {
-    console.error('更新订单明细错误:', error);
+    console.error('❌ 更新订单明细错误:', error);
     res.status(500).json({ code: 500, message: '服务器错误' });
   }
 });

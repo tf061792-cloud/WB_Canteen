@@ -12,6 +12,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
   config => {
+    console.log('🔍 API请求:', config.method, config.url);
+    console.log('🔍 请求数据:', config.data);
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('admin_token');
       if (token) {
@@ -21,6 +23,7 @@ api.interceptors.request.use(
     return config;
   },
   error => {
+    console.error('❌ API请求错误:', error);
     return Promise.reject(error);
   }
 );
