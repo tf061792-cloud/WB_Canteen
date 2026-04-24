@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { usePickerStore } from './../stores/pickerStore';
 
 const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
 
@@ -13,18 +14,14 @@ const api = axios.create({
 api.interceptors.request.use(
   config => {
     if (typeof window !== 'undefined') {
-      // 从 picker-storage 中获取 token
-      const storageData = localStorage.getItem('picker-storage');
-      if (storageData) {
-        try {
-          const state = JSON.parse(storageData);
-          const token = state.token;
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
-        } catch (error) {
-          console.error('解析存储数据失败:', error);
+      try {
+        // 直接从 store 中获取 token，而不是从 localStorage
+        const { token } = usePickerStore.getState();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
         }
+      } catch (error) {
+        console.error('获取 token 失败:', error);
       }
     }
     return config;
@@ -40,8 +37,17 @@ api.interceptors.response.use(
   },
   error => {
     if (typeof window !== 'undefined' && error.response && error.response.status === 401) {
-      // 从 picker-storage 中清除 token
-      localStorage.removeItem('picker-storage');
+      // 使用 store 的 logout 方法来清除 token
+      try {
+        const { logout } = usePickerStore.getState();
+        if (logout) {
+          logout();
+        }
+      } catch (error) {
+        console.error('登出失败:', error);
+        // 后备方案：直接清除 localStorage
+        localStorage.removeItem('picker-storage');
+      }
       window.location.href = '/login';
     }
     return Promise.reject(error);
