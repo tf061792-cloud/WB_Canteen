@@ -79,7 +79,9 @@ export default function Home() {
 
   const productsByCategory = categories.map(cat => ({
     ...cat,
-    products: filteredProducts.filter(p => p.category_id === cat.id)
+    products: filteredProducts
+      .filter(p => p.category_id === cat.id)
+      .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { sensitivity: 'base' }))
   })).filter(cat => cat.products.length > 0);
 
   const searchResults = searchQuery ? filteredProducts : [];
