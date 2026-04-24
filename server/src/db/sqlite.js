@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 
-// 使用项目内的 data 目录（无论什么环境都统一）
-const dbDir = path.join(__dirname, '../../data');
+// 使用项目内的 data 目录（开发环境）或持久卷（生产环境）
+const dbDir = process.env.NODE_ENV === 'production' ? '/data' : path.join(__dirname, '../../data');
 const dbPath = path.join(dbDir, 'canteen.db');
 
 // 打印调试信息
