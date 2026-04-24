@@ -80,7 +80,8 @@ export default function ProductManage() {
       formData.append('image', file);
 
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('/api/admin/upload', {
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      const response = await fetch(`${API_BASE_URL}/api/admin/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -123,7 +124,7 @@ export default function ProductManage() {
     try {
       // 清除分类缓存，确保获取最新数据
       requestCache.clearByPrefix('/products/categories');
-      const res = await categoryAPI.list();
+      const res = await categoryAPI.categories();
       if (res.code === 200) {
         setCategories(res.data || []);
         console.log('分类列表已更新，共', res.data?.length || 0, '个分类');
@@ -619,7 +620,8 @@ export default function ProductManage() {
     try {
       showToast('正在上传图片...', 'info');
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('/api/admin/upload/batch', {
+      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      const response = await fetch(`${API_BASE_URL}/api/admin/upload/batch`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

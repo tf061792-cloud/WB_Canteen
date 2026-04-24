@@ -153,6 +153,10 @@ export default function UserCenter() {
           ) : (
             <div className="text-xs text-center py-2 text-gray-500">加载中...</div>
           )}
+          
+          <Link to="/customers" className="mt-3 block text-center py-2 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium">
+            📊 查看客户与收益
+          </Link>
         </div>
       )}
 

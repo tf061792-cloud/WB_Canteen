@@ -2,7 +2,7 @@
 const express = require('express');
 const { getDb, saveDb } = require('../db/sqlite');
 const { userAuth, adminAuth } = require('../middleware/auth');
-const { calculateCommission } = require('./promoter');
+const { calculateCommission, updatePromoterEarnings } = require('./promoter');
 const { cache, clearRelatedCaches } = require('../utils/cache');
 
 const router = express.Router();
@@ -460,6 +460,13 @@ router.put('/:id', adminAuth, (req, res) => {
 
       // 清除订单相关缓存
       clearRelatedCaches.orders();
+
+      // 如果更新了利润金额，重新计算推广员收益
+      if (profit_amount !== undefined) {
+        setImmediate(() => {
+          updatePromoterEarnings(id);
+        });
+      }
 
       res.json({
         code: 200,

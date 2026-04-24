@@ -380,4 +380,80 @@ function calculateCommission(orderId) {
   }
 }
 
-module.exports = { router, calculateCommission };
+// 重新计算订单提成（用于利润更新后）
+function updatePromoterEarnings(orderId) {
+  try {
+    const db = getDb();
+    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
+    if (!order) return;
+
+    const orderUser = db.prepare('SELECT id, role, parent_id FROM users WHERE id = ?').get(order.user_id);
+    if (!orderUser) return;
+
+    let customerId = order.user_id;
+    if (orderUser.role === 'operator' && orderUser.parent_id) {
+      customerId = orderUser.parent_id;
+      console.log(`操作员 ${order.user_id} 的订单归属于客户 ${customerId}`);
+    }
+
+    const binding = db().prepare(`
+      SELECT * FROM promoter_bindings
+      WHERE customer_id = ? AND status = 'active'
+    `).get(customerId);
+
+    if (!binding) return;
+
+    const typeConfig = db().prepare("SELECT config_value FROM system_config WHERE config_key = 'commission_type'").get();
+    const rateConfig = db().prepare("SELECT config_value FROM system_config WHERE config_key = 'commission_rate'").get();
+
+    const commissionType = typeConfig ? typeConfig.config_value : 'profit';
+    const commissionRate = rateConfig ? parseFloat(rateConfig.config_value) : 10;
+
+    let commissionAmount = 0;
+    let baseAmount = 0;
+
+    if (commissionType === 'profit') {
+      baseAmount = order.profit_amount || 0;
+      commissionAmount = baseAmount * (commissionRate / 100);
+    } else {
+      baseAmount = order.total || 0;
+      commissionAmount = baseAmount * (commissionRate / 100);
+    }
+
+    // 检查是否已经有收益记录
+    const existing = db().prepare('SELECT id FROM promoter_earnings WHERE order_id = ?').get(orderId);
+    
+    if (existing) {
+      // 更新现有记录
+      db().prepare(`
+        UPDATE promoter_earnings
+        SET profit_amount = ?, commission_amount = ?, updated_at = datetime('now')
+        WHERE order_id = ?
+      `).run(order.profit_amount || 0, commissionAmount.toFixed(2), orderId);
+      
+      console.log(`订单 ${orderId} 提成更新完成：${commissionAmount.toFixed(2)}元`);
+    } else {
+      // 创建新记录
+      db().prepare(`
+        INSERT INTO promoter_earnings
+          (promoter_id, order_id, customer_id, order_amount, profit_amount, commission_type, commission_rate, commission_amount, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+      `).run(
+        binding.promoter_id,
+        orderId,
+        customerId,
+        order.total,
+        order.profit_amount || 0,
+        commissionType,
+        commissionRate,
+        commissionAmount.toFixed(2)
+      );
+      
+      console.log(`订单 ${orderId} 提成创建完成：${commissionAmount.toFixed(2)}元`);
+    }
+  } catch (error) {
+    console.error('更新提成失败:', error);
+  }
+}
+
+module.exports = { router, calculateCommission, updatePromoterEarnings };

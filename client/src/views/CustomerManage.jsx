@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { authAPI } from '../api';
 
+const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+
 // 通用请求函数
 async function request(url, options = {}) {
   const userStorage = JSON.parse(localStorage.getItem('user-storage') || '{}');
@@ -18,7 +20,7 @@ async function request(url, options = {}) {
   }
 
   try {
-    const response = await fetch(`${url}`, {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
       ...options,
       headers
     });
@@ -70,7 +72,7 @@ export default function CustomerManage() {
   // 生成邀请链接
   const getInviteLink = () => {
     if (!userInfo?.promoter_code) return '';
-    const baseUrl = window.location.origin + '/client';
+    const baseUrl = 'https://wbcanteen-client.vercel.app';
     return `${baseUrl}/register?code=${userInfo.promoter_code}`;
   };
 
@@ -107,7 +109,7 @@ export default function CustomerManage() {
         {/* 累计收益 */}
         {stats && (
           <div className="text-center py-4">
-            <div className="text-3xl font-bold">¥{stats.total_commission?.toFixed(2) || '0.00'}</div>
+            <div className="text-3xl font-bold">฿{stats.total_commission?.toFixed(2) || '0.00'}</div>
             <div className="text-xs opacity-80 mt-1">累计收益</div>
           </div>
         )}
@@ -215,11 +217,11 @@ export default function CustomerManage() {
                       </div>
                       <div>
                         <span className="text-gray-400">累计消费:</span>
-                        <span className="text-orange-600 ml-1">¥{customer.total_amount?.toFixed(2) || '0.00'}</span>
+                        <span className="text-orange-600 ml-1">฿{customer.total_amount?.toFixed(2) || '0.00'}</span>
                       </div>
                       <div>
                         <span className="text-gray-400">我的收益:</span>
-                        <span className="text-red-500 ml-1 font-medium">¥{customer.total_commission?.toFixed(2) || '0.00'}</span>
+                        <span className="text-red-500 ml-1 font-medium">฿{customer.total_commission?.toFixed(2) || '0.00'}</span>
                       </div>
                     </div>
                   </div>
@@ -245,19 +247,19 @@ export default function CustomerManage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">今日收益</span>
-                    <span className="font-medium text-red-500">+¥{stats.today_commission?.toFixed(2) || '0.00'}</span>
+                    <span className="font-medium text-red-500">+฿{stats.today_commission?.toFixed(2) || '0.00'}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">本周收益</span>
-                    <span className="font-medium">¥{stats.week_commission?.toFixed(2) || '0.00'}</span>
+                    <span className="font-medium">฿{stats.week_commission?.toFixed(2) || '0.00'}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">本月收益</span>
-                    <span className="font-medium">¥{stats.month_commission?.toFixed(2) || '0.00'}</span>
+                    <span className="font-medium">฿{stats.month_commission?.toFixed(2) || '0.00'}</span>
                   </div>
                   <div className="flex justify-between items-center pt-2 border-t">
                     <span className="font-medium">累计收益</span>
-                    <span className="font-bold text-red-500">¥{stats.total_commission?.toFixed(2) || '0.00'}</span>
+                    <span className="font-bold text-red-500">฿{stats.total_commission?.toFixed(2) || '0.00'}</span>
                   </div>
                 </div>
               </div>
