@@ -6,7 +6,7 @@ console.log('🏪 useAdminStore 初始化 (无 persist)');
 // 从 localStorage 恢复状态
 const getInitialState = () => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('admin_token');
     const adminStr = localStorage.getItem('admin');
     const admin = adminStr ? JSON.parse(adminStr) : null;
     return {
@@ -34,7 +34,7 @@ export const useAdminStore = create((set, get) => ({
       
       // 保存到 localStorage
       if (typeof window !== 'undefined') {
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('admin_token', data.token);
         localStorage.setItem('admin', JSON.stringify({
           id: data.id,
           username: data.username,
@@ -74,7 +74,7 @@ export const useAdminStore = create((set, get) => ({
     
     // 清除 localStorage
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
+      localStorage.removeItem('admin_token');
       localStorage.removeItem('admin');
     }
     
