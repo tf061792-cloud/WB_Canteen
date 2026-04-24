@@ -410,14 +410,27 @@ export default function OrderList() {
       setEditLoading(true);
       // 准备保存数据，将display_quantity映射到quantity和actual_qty
       const saveItems = editingItems.map(item => ({
-        ...item,
-        quantity: item.display_quantity, // 更新订单数量
-        actual_qty: item.display_quantity  // 更新实际配货数量
+        product_id: item.product_id || 0,
+        product_name: item.product_name || '',
+        name_th: item.name_th || '',
+        specs: item.specs || '',
+        price: item.price || 0,
+        quantity: item.display_quantity || 0,
+        actual_qty: item.display_quantity || 0,
+        unit: item.unit || '',
+        subtotal: (item.price || 0) * (item.display_quantity || 0)
       }));
+      
+      console.log('📋 准备保存的订单明细:', saveItems);
+      console.log('📋 计算的总金额:', calculateTotal());
+      
       const res = await orderAPI.updateItems(selectedOrder.id, {
-        items: saveItems,
-        total: parseFloat(calculateTotal())
+        items: saveItems
+        // 注意：后端自己计算total，不需要传
       });
+      
+      console.log('📋 服务器响应:', res);
+      
       if (res.code === 200) {
         alert('保存成功');
         setShowEditModal(false);
@@ -430,10 +443,11 @@ export default function OrderList() {
           });
         }
       } else {
-        alert(res.message);
+        alert(res.message || '保存失败');
       }
     } catch (error) {
-      alert('保存失败');
+      console.error('❌ 保存失败:', error);
+      alert('保存失败: ' + (error.message || error));
     } finally {
       setEditLoading(false);
     }
