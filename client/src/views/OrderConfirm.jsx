@@ -26,7 +26,7 @@ export default function OrderConfirm() {
 
   const fetchDefaultAddress = async () => {
     try {
-      const res = await addressAPI.list();
+      const res = await addressAPI.getAddresses();
       if (res.code === 200) {
         const addresses = res.data || [];
         const defaultAddr = addresses.find(addr => addr.is_default === 1) || addresses[0];
@@ -66,7 +66,7 @@ export default function OrderConfirm() {
 
     try {
       setLoading(true);
-      
+
       const orderData = {
         items: items.map(item => ({
           product_id: item.product_id,
@@ -78,8 +78,8 @@ export default function OrderConfirm() {
         remark
       };
 
-      const res = await orderAPI.create(orderData);
-      
+      const res = await orderAPI.createOrder(orderData);
+
       if (res.code === 200) {
         clearCart();
         navigate(`/order/detail/${res.data.order_id}`);
@@ -223,8 +223,8 @@ export default function OrderConfirm() {
           onClick={handleSubmit}
           disabled={loading}
           className={`px-6 py-3 rounded-lg font-medium disabled:bg-gray-300 ${
-            isLoggedIn 
-              ? 'bg-orange-500 text-white' 
+            isLoggedIn
+              ? 'bg-orange-500 text-white'
               : 'bg-gray-500 text-white'
           }`}
         >
