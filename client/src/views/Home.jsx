@@ -28,6 +28,11 @@ export default function Home() {
     loadData();
   }, []);
 
+  // 刷新数据
+  const handleRefresh = () => {
+    loadData();
+  };
+
   useEffect(() => {
     console.log('[DEBUG] Banners updated:', banners);
   }, [banners]);
@@ -163,6 +168,15 @@ export default function Home() {
               )}
             </div>
           </div>
+          <button
+            onClick={handleRefresh}
+            className="w-10 h-10 flex items-center justify-center mr-2"
+            title="刷新数据"
+          >
+            <svg className="w-4 h-4 text-gray-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
           <Link to="/cart" className="relative w-10 h-10 flex items-center justify-center">
             <span className="text-xl">🛒</span>
             {itemCount > 0 && (

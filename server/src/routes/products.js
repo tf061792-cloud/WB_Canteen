@@ -170,7 +170,12 @@ router.post('/', adminAuth, (req, res) => {
     saveDb();
 
     // 清除商品和分类缓存
-    clearRelatedCaches.products();
+    console.log('[DEBUG] Clearing product caches...');
+    const clearedCount = clearRelatedCaches.products();
+    console.log('[DEBUG] Cleared', clearedCount, 'cache items');
+    
+    // 额外清除价格相关缓存
+    clearRelatedCaches.pricing();
 
     res.json({
       code: 200,
@@ -231,7 +236,12 @@ router.put('/:id', adminAuth, (req, res) => {
     saveDb();
 
     // 清除商品和分类缓存
-    clearRelatedCaches.products();
+    console.log('[DEBUG] Clearing product caches...');
+    const clearedCount = clearRelatedCaches.products();
+    console.log('[DEBUG] Cleared', clearedCount, 'cache items');
+    
+    // 额外清除价格相关缓存
+    clearRelatedCaches.pricing();
 
     res.json({
       code: 200,
@@ -258,7 +268,12 @@ router.delete('/:id', adminAuth, (req, res) => {
     saveDb();
 
     // 清除商品和分类缓存
-    clearRelatedCaches.products();
+    console.log('[DEBUG] Clearing product caches...');
+    const clearedCount = clearRelatedCaches.products();
+    console.log('[DEBUG] Cleared', clearedCount, 'cache items');
+    
+    // 额外清除价格相关缓存
+    clearRelatedCaches.pricing();
 
     res.json({
       code: 200,
@@ -284,7 +299,12 @@ router.delete('/admin/clear-all', adminAuth, (req, res) => {
     saveDb();
 
     // 清除商品和分类缓存
-    clearRelatedCaches.products();
+    console.log('[DEBUG] Clearing product caches...');
+    const clearedCount = clearRelatedCaches.products();
+    console.log('[DEBUG] Cleared', clearedCount, 'cache items');
+    
+    // 额外清除价格相关缓存
+    clearRelatedCaches.pricing();
 
     res.json({
       code: 200,
@@ -313,7 +333,12 @@ router.post('/categories', adminAuth, (req, res) => {
     saveDb();
     
     // 清除商品和分类缓存
-    clearRelatedCaches.products();
+    console.log('[DEBUG] Clearing product caches...');
+    const clearedCount = clearRelatedCaches.products();
+    console.log('[DEBUG] Cleared', clearedCount, 'cache items');
+    
+    // 额外清除价格相关缓存
+    clearRelatedCaches.pricing();
 
     res.json({
       code: 200,
@@ -349,7 +374,12 @@ router.put('/categories/:id', adminAuth, (req, res) => {
     saveDb();
     
     // 清除商品和分类缓存
-    clearRelatedCaches.products();
+    console.log('[DEBUG] Clearing product caches...');
+    const clearedCount = clearRelatedCaches.products();
+    console.log('[DEBUG] Cleared', clearedCount, 'cache items');
+    
+    // 额外清除价格相关缓存
+    clearRelatedCaches.pricing();
 
     res.json({
       code: 200,
@@ -382,7 +412,12 @@ router.delete('/categories/:id', adminAuth, (req, res) => {
     saveDb();
     
     // 清除商品和分类缓存
-    clearRelatedCaches.products();
+    console.log('[DEBUG] Clearing product caches...');
+    const clearedCount = clearRelatedCaches.products();
+    console.log('[DEBUG] Cleared', clearedCount, 'cache items');
+    
+    // 额外清除价格相关缓存
+    clearRelatedCaches.pricing();
 
     res.json({
       code: 200,
