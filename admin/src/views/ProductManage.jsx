@@ -214,9 +214,16 @@ export default function ProductManage() {
       return p;
     }));
     
+    // 计算新的售价
+    const updatedProduct = { ...product, [field]: numValue };
+    const newPrice = parseFloat(calculateSalePrice(updatedProduct));
+    
     // 后台保存（无反馈）
     try {
-      await productAPI.updateProduct(product.id, { [field]: numValue });
+      await productAPI.updateProduct(product.id, { 
+        [field]: numValue,
+        price: newPrice
+      });
     } catch (error) {
       console.error('保存失败:', error);
     }
