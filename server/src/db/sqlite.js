@@ -330,7 +330,7 @@ async function initDatabase() {
   // 插入默认系统配置
   db.exec(`
     INSERT OR IGNORE INTO system_config (config_key, config_value, description) VALUES ('commission_type', 'profit', '提成类型：profit-利润提成，sales-销售额提成');
-    INSERT OR IGNORE INTO system_config (config_key, config_value, description) VALUES ('commission_rate', '10', '提成比例（百分比）');
+    INSERT OR IGNORE INTO system_config (config_key, config_value, description) VALUES ('commission_rate', '3', '提成比例（百分比）');
   `);
 
   db.exec(`

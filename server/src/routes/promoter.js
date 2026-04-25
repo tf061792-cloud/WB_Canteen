@@ -320,11 +320,17 @@ router.get('/commission-settings', authenticate, (req, res) => {
   }
 });
 
-// 计算订单提成（内部调用）
+// 计算订单提成（内部调用）- 仅在订单完成时计算
 function calculateCommission(orderId) {
   try {
     const order = db().prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
     if (!order) return;
+
+    // 仅在订单完成时计算提成
+    if (order.status !== 'completed') {
+      console.log(`订单 ${orderId} 状态为 ${order.status}，不计算提成`);
+      return;
+    }
 
     const orderUser = db().prepare('SELECT id, role, parent_id FROM users WHERE id = ?').get(order.user_id);
     if (!orderUser) return;
@@ -346,7 +352,7 @@ function calculateCommission(orderId) {
     const rateConfig = db().prepare("SELECT config_value FROM system_config WHERE config_key = 'commission_rate'").get();
 
     const commissionType = typeConfig ? typeConfig.config_value : 'profit';
-    const commissionRate = rateConfig ? parseFloat(rateConfig.config_value) : 10;
+    const commissionRate = rateConfig ? parseFloat(rateConfig.config_value) : 3;
 
     let commissionAmount = 0;
     let baseAmount = 0;
@@ -374,18 +380,24 @@ function calculateCommission(orderId) {
       commissionAmount.toFixed(2)
     );
 
-    console.log(`订单 ${orderId} 提成计算完成：${commissionAmount.toFixed(2)}元`);
+    console.log(`✅ 订单 ${orderId} 提成计算完成：${commissionAmount.toFixed(2)}元 (${commissionType} × ${commissionRate}%)`);
   } catch (error) {
     console.error('计算提成失败:', error);
   }
 }
 
-// 重新计算订单提成（用于利润更新后）
+// 重新计算订单提成（用于利润更新后）- 仅在订单完成时计算
 function updatePromoterEarnings(orderId) {
   try {
     const db = getDb();
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
     if (!order) return;
+
+    // 仅在订单完成时计算/更新提成
+    if (order.status !== 'completed') {
+      console.log(`订单 ${orderId} 状态为 ${order.status}，不更新提成`);
+      return;
+    }
 
     const orderUser = db.prepare('SELECT id, role, parent_id FROM users WHERE id = ?').get(order.user_id);
     if (!orderUser) return;
@@ -407,7 +419,7 @@ function updatePromoterEarnings(orderId) {
     const rateConfig = db().prepare("SELECT config_value FROM system_config WHERE config_key = 'commission_rate'").get();
 
     const commissionType = typeConfig ? typeConfig.config_value : 'profit';
-    const commissionRate = rateConfig ? parseFloat(rateConfig.config_value) : 10;
+    const commissionRate = rateConfig ? parseFloat(rateConfig.config_value) : 3;
 
     let commissionAmount = 0;
     let baseAmount = 0;
@@ -431,7 +443,7 @@ function updatePromoterEarnings(orderId) {
         WHERE order_id = ?
       `).run(order.profit_amount || 0, commissionAmount.toFixed(2), orderId);
       
-      console.log(`订单 ${orderId} 提成更新完成：${commissionAmount.toFixed(2)}元`);
+      console.log(`✅ 订单 ${orderId} 提成更新完成：${commissionAmount.toFixed(2)}元 (${commissionType} × ${commissionRate}%)`);
     } else {
       // 创建新记录
       db().prepare(`
@@ -449,7 +461,7 @@ function updatePromoterEarnings(orderId) {
         commissionAmount.toFixed(2)
       );
       
-      console.log(`订单 ${orderId} 提成创建完成：${commissionAmount.toFixed(2)}元`);
+      console.log(`✅ 订单 ${orderId} 提成创建完成：${commissionAmount.toFixed(2)}元 (${commissionType} × ${commissionRate}%)`);
     }
   } catch (error) {
     console.error('更新提成失败:', error);
