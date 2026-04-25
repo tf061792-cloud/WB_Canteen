@@ -311,8 +311,8 @@ export default function ProductManage() {
 
   const handleEdit = (product) => {
     setEditingProduct(product);
-    const costPrice = product.cost_price || '';
-    const profitWeight = product.profit_weight || '';
+    const costPrice = product.cost_price != null ? String(product.cost_price) : '';
+    const profitWeight = product.profit_weight != null ? String(product.profit_weight) : '';
     // 计算售价：成本价 + 利润加权
     const calculatedPrice = (costPrice !== '' && profitWeight !== '') 
       ? (parseFloat(costPrice) + parseFloat(profitWeight)).toFixed(2)
