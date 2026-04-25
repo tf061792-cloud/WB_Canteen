@@ -195,13 +195,20 @@ router.put('/:id', adminAuth, (req, res) => {
     const { id } = req.params;
     const { name, name_th, category_id, price, cost_price, profit_weight, unit, specs, stock, image, description, status } = req.body;
 
+    console.log('[DEBUG] Product update request:');
+    console.log('[DEBUG] Product ID:', id);
+    console.log('[DEBUG] Request body:', req.body);
+
     const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
     if (!existing) {
+      console.log('[DEBUG] Product not found:', id);
       return res.status(404).json({ code: 404, message: '商品不存在' });
     }
 
+    console.log('[DEBUG] Existing product:', existing);
+
     // 直接更新所有字段，使用前端传来的值
-    db.prepare(`
+    const result = db.prepare(`
       UPDATE products SET 
        name = ?,
        name_th = ?,
@@ -233,7 +240,10 @@ router.put('/:id', adminAuth, (req, res) => {
       id
     );
     
+    console.log('[DEBUG] Update result:', result);
+    
     saveDb();
+    console.log('[DEBUG] Database saved');
 
     // 清除商品和分类缓存
     console.log('[DEBUG] Clearing product caches...');
@@ -242,10 +252,16 @@ router.put('/:id', adminAuth, (req, res) => {
     
     // 额外清除价格相关缓存
     clearRelatedCaches.pricing();
+    console.log('[DEBUG] Pricing caches cleared');
+
+    // 验证更新结果
+    const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    console.log('[DEBUG] Updated product:', updated);
 
     res.json({
       code: 200,
-      message: '更新成功'
+      message: '更新成功',
+      data: updated
     });
   } catch (error) {
     console.error('更新商品错误:', error);

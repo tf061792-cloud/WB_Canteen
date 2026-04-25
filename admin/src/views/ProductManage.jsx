@@ -218,14 +218,22 @@ export default function ProductManage() {
     const updatedProduct = { ...product, [field]: numValue };
     const newPrice = parseFloat(calculateSalePrice(updatedProduct));
     
+    console.log('[DEBUG] Saving price field:');
+    console.log('[DEBUG] Product ID:', product.id);
+    console.log('[DEBUG] Field:', field);
+    console.log('[DEBUG] New value:', numValue);
+    console.log('[DEBUG] New price:', newPrice);
+    
     // 后台保存（无反馈）
     try {
-      await productAPI.updateProduct(product.id, { 
+      const response = await productAPI.updateProduct(product.id, { 
         [field]: numValue,
         price: newPrice
       });
+      console.log('[DEBUG] API response:', response);
     } catch (error) {
       console.error('保存失败:', error);
+      console.error('Error details:', error.response?.data || error.message);
     }
   };
   
