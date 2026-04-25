@@ -85,12 +85,7 @@ export default function Login() {
           </button>
         </form>
 
-        {/* 测试账户提示 */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-500">
-          <p className="font-medium text-gray-700 mb-2">测试账户：</p>
-          <p>用户名：admin | 密码：admin123</p>
-          <p>用户名：finance | 密码：admin123</p>
-        </div>
+
       </div>
     </div>
   );
