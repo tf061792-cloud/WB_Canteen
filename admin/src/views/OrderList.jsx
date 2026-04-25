@@ -711,9 +711,7 @@ export default function OrderList() {
                       )}
                       <button
                         onClick={() => {
-                          if (confirm('确定要编辑该订单吗？')) {
-                            openEditModal(order);
-                          }
+                          openEditModal(order);
                         }}
                         className={`px-2 py-0.5 text-[10px] rounded ${
                           order.hasDifference
@@ -725,12 +723,9 @@ export default function OrderList() {
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm('确定要查看成本明细吗？')) {
-                            openFinanceModal(order);
-                          }
+                          openFinanceModal(order);
                         }}
-                        disabled={updating}
-                        className="px-2 py-0.5 bg-green-500 text-white text-[10px] rounded hover:bg-green-600 disabled:opacity-50"
+                        className="px-2 py-0.5 bg-green-500 text-white text-[10px] rounded hover:bg-green-600"
                       >
                         成本明细
                       </button>

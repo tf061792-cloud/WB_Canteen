@@ -321,6 +321,7 @@ router.get('/commission-settings', authenticate, (req, res) => {
 });
 
 // 计算订单提成（内部调用）- 仅在订单完成时计算
+// 公式：推广员收益 = (实际回款 - 实际支出 - 海关运输费) × 百分比
 function calculateCommission(orderId) {
   try {
     const order = db().prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
@@ -348,22 +349,16 @@ function calculateCommission(orderId) {
 
     if (!binding) return;
 
-    const typeConfig = db().prepare("SELECT config_value FROM system_config WHERE config_key = 'commission_type'").get();
     const rateConfig = db().prepare("SELECT config_value FROM system_config WHERE config_key = 'commission_rate'").get();
-
-    const commissionType = typeConfig ? typeConfig.config_value : 'profit';
     const commissionRate = rateConfig ? parseFloat(rateConfig.config_value) : 3;
 
-    let commissionAmount = 0;
-    let baseAmount = 0;
-
-    if (commissionType === 'profit') {
-      baseAmount = order.profit_amount || 0;
-      commissionAmount = baseAmount * (commissionRate / 100);
-    } else {
-      baseAmount = order.total || 0;
-      commissionAmount = baseAmount * (commissionRate / 100);
-    }
+    // 公式：(实际回款 - 实际支出 - 海关运输费) × 百分比
+    const actualAmount = Number(order.actual_amount) || 0;  // 实际回款金额
+    const actualCost = Number(order.actual_cost) || 0;      // 实际支出
+    const customsFee = Number(order.customs_fee) || 0;     // 海关运输费
+    
+    const profit = actualAmount - actualCost - customsFee;
+    const commissionAmount = Math.max(0, profit * (commissionRate / 100)); // 防止负数
 
     db().prepare(`
       INSERT INTO promoter_earnings
@@ -374,8 +369,8 @@ function calculateCommission(orderId) {
       orderId,
       customerId,
       order.total,
-      order.profit_amount || 0,
-      commissionType,
+      profit,
+      'profit',
       commissionRate,
       commissionAmount.toFixed(2)
     );
@@ -387,6 +382,7 @@ function calculateCommission(orderId) {
 }
 
 // 重新计算订单提成（用于利润更新后）- 仅在订单完成时计算
+// 公式：推广员收益 = (实际回款 - 实际支出 - 海关运输费) × 百分比
 function updatePromoterEarnings(orderId) {
   try {
     const db = getDb();
@@ -415,22 +411,16 @@ function updatePromoterEarnings(orderId) {
 
     if (!binding) return;
 
-    const typeConfig = db().prepare("SELECT config_value FROM system_config WHERE config_key = 'commission_type'").get();
     const rateConfig = db().prepare("SELECT config_value FROM system_config WHERE config_key = 'commission_rate'").get();
-
-    const commissionType = typeConfig ? typeConfig.config_value : 'profit';
     const commissionRate = rateConfig ? parseFloat(rateConfig.config_value) : 3;
 
-    let commissionAmount = 0;
-    let baseAmount = 0;
-
-    if (commissionType === 'profit') {
-      baseAmount = order.profit_amount || 0;
-      commissionAmount = baseAmount * (commissionRate / 100);
-    } else {
-      baseAmount = order.total || 0;
-      commissionAmount = baseAmount * (commissionRate / 100);
-    }
+    // 公式：(实际回款 - 实际支出 - 海关运输费) × 百分比
+    const actualAmount = Number(order.actual_amount) || 0;  // 实际回款金额
+    const actualCost = Number(order.actual_cost) || 0;      // 实际支出
+    const customsFee = Number(order.customs_fee) || 0;     // 海关运输费
+    
+    const profit = actualAmount - actualCost - customsFee;
+    const commissionAmount = Math.max(0, profit * (commissionRate / 100)); // 防止负数
 
     // 检查是否已经有收益记录
     const existing = db().prepare('SELECT id FROM promoter_earnings WHERE order_id = ?').get(orderId);
@@ -441,9 +431,9 @@ function updatePromoterEarnings(orderId) {
         UPDATE promoter_earnings
         SET profit_amount = ?, commission_amount = ?, updated_at = datetime('now')
         WHERE order_id = ?
-      `).run(order.profit_amount || 0, commissionAmount.toFixed(2), orderId);
+      `).run(profit, commissionAmount.toFixed(2), orderId);
       
-      console.log(`✅ 订单 ${orderId} 提成更新完成：${commissionAmount.toFixed(2)}元 (${commissionType} × ${commissionRate}%)`);
+      console.log(`✅ 订单 ${orderId} 提成更新完成：${commissionAmount.toFixed(2)}元 ((${actualAmount} - ${actualCost} - ${customsFee}) × ${commissionRate}%)`);
     } else {
       // 创建新记录
       db().prepare(`
@@ -455,13 +445,13 @@ function updatePromoterEarnings(orderId) {
         orderId,
         customerId,
         order.total,
-        order.profit_amount || 0,
-        commissionType,
+        profit,
+        'profit',
         commissionRate,
         commissionAmount.toFixed(2)
       );
       
-      console.log(`✅ 订单 ${orderId} 提成创建完成：${commissionAmount.toFixed(2)}元 (${commissionType} × ${commissionRate}%)`);
+      console.log(`✅ 订单 ${orderId} 提成创建完成：${commissionAmount.toFixed(2)}元 ((${actualAmount} - ${actualCost} - ${customsFee}) × ${commissionRate}%)`);
     }
   } catch (error) {
     console.error('更新提成失败:', error);
