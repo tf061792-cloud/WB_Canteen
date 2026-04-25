@@ -195,39 +195,38 @@ router.put('/:id', adminAuth, (req, res) => {
       return res.status(404).json({ code: 404, message: '商品不存在' });
     }
 
-    // 处理 undefined 值，转换为 null
-    const safeValues = [
-      name !== undefined ? name : null,
-      name_th !== undefined ? name_th : null,
-      category_id !== undefined ? category_id : null,
-      price !== undefined ? price : null,
-      cost_price !== undefined ? cost_price : null,
-      profit_weight !== undefined ? profit_weight : null,
-      unit !== undefined ? unit : null,
-      specs !== undefined ? specs : null,
-      stock !== undefined ? stock : null,
-      image !== undefined ? image : null,
-      description !== undefined ? description : null,
-      status !== undefined ? status : null,
-      id
-    ];
-
+    // 直接更新所有字段，使用前端传来的值
     db.prepare(`
       UPDATE products SET 
-       name = COALESCE(?, name),
-       name_th = COALESCE(?, name_th),
-       category_id = COALESCE(?, category_id),
-       price = COALESCE(?, price),
-       cost_price = COALESCE(?, cost_price),
-       profit_weight = COALESCE(?, profit_weight),
-       unit = COALESCE(?, unit),
-       specs = COALESCE(?, specs),
-       stock = COALESCE(?, stock),
-       image = COALESCE(?, image),
-       description = COALESCE(?, description),
-       status = COALESCE(?, status)
+       name = ?,
+       name_th = ?,
+       category_id = ?,
+       price = ?,
+       cost_price = ?,
+       profit_weight = ?,
+       unit = ?,
+       specs = ?,
+       stock = ?,
+       image = ?,
+       description = ?,
+       status = ?,
+       updated_at = datetime('now')
        WHERE id = ?
-    `).run(...safeValues);
+    `).run(
+      name !== undefined ? name : existing.name,
+      name_th !== undefined ? name_th : existing.name_th,
+      category_id !== undefined ? category_id : existing.category_id,
+      price !== undefined ? price : existing.price,
+      cost_price !== undefined ? cost_price : existing.cost_price,
+      profit_weight !== undefined ? profit_weight : existing.profit_weight,
+      unit !== undefined ? unit : existing.unit,
+      specs !== undefined ? specs : existing.specs,
+      stock !== undefined ? stock : existing.stock,
+      image !== undefined ? image : existing.image,
+      description !== undefined ? description : existing.description,
+      status !== undefined ? status : existing.status,
+      id
+    );
     
     saveDb();
 
