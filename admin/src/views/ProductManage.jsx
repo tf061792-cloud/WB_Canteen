@@ -216,7 +216,7 @@ export default function ProductManage() {
     
     // 后台保存（无反馈）
     try {
-      await pricingAPI.update(product.id, { [field]: numValue });
+      await productAPI.updateProduct(product.id, { [field]: numValue });
     } catch (error) {
       console.error('保存失败:', error);
     }
@@ -224,7 +224,7 @@ export default function ProductManage() {
   
   // 价格输入框组件
   const PriceInput = ({ product, field, value }) => {
-    const [localValue, setLocalValue] = useState(value || '');
+    const [localValue, setLocalValue] = useState(value != null ? String(value) : '');
     
     const handleBlur = () => {
       savePriceField(product, field, localValue);
