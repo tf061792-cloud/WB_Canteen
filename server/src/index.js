@@ -22,6 +22,7 @@ const pickerRoutes = require('./routes/picker');
 const financeRoutes = require('./routes/finance');
 const adminToolsRoutes = require('./routes/adminTools');
 
+
 const { adminAuth, userAuth: authenticate } = require('./middleware/auth');
 const { checkPermission } = permissionRoutes; // 引入权限检查中间件
 
