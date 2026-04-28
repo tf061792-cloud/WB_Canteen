@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { authAPI } from '../api/index';
+import { authAPI, adminAPI } from '../api/index';
 
 console.log('🏪 useAdminStore 初始化');
 
@@ -10,6 +10,8 @@ export const useAdminStore = create(
       admin: null,
       token: null,
       isLoggedIn: false,
+      permissions: [],
+      isSuperadmin: false,
 
       login: async (username, password) => {
         console.log('🔐 尝试登录:', username);
@@ -37,6 +39,8 @@ export const useAdminStore = create(
             token: data.token,
             isLoggedIn: true
           });
+          // 获取权限信息
+          await get().fetchPermissions();
           return true;
         }
         throw new Error(res.message);
@@ -53,6 +57,21 @@ export const useAdminStore = create(
         }
       },
 
+      fetchPermissions: async () => {
+        try {
+          const res = await adminAPI.getMyPermissions();
+          if (res.code === 200) {
+            console.log('✅ 获取权限成功:', res.data);
+            set({
+              permissions: res.data.permissions || [],
+              isSuperadmin: res.data.is_superadmin || false
+            });
+          }
+        } catch (error) {
+          console.error('获取权限失败:', error);
+        }
+      },
+
       logout: () => {
         console.log('🚪 登出');
         // 清除 localStorage
@@ -63,7 +82,9 @@ export const useAdminStore = create(
         set({
           admin: null,
           token: null,
-          isLoggedIn: false
+          isLoggedIn: false,
+          permissions: [],
+          isSuperadmin: false
         });
       }
     }),

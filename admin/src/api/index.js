@@ -71,6 +71,8 @@ export const adminAPI = {
   // 权限管理
   getPermissions: () => api.get('/api/admin/permissions'),
   updatePermissions: (data) => api.put('/api/admin/permissions', data),
+  getMyPermissions: () => api.get('/api/admin/permissions/my-permissions'),
+  updateAdminPermissions: (id, data) => api.put(`/api/admin/permissions/admin/${id}`, data)
   
   // 网站信息
   getSiteInfo: () => api.get('/api/site'),

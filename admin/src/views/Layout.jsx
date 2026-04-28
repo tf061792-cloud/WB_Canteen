@@ -1,30 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAdminStore } from '../stores/adminStore';
 import LanguageSelector from '../components/LanguageSelector';
 
-// 菜单配置（使用翻译键）
+// 菜单配置（使用翻译键）- 添加权限要求
 const menuItems = [
-  { path: '/', icon: '📊', labelKey: 'menu.dashboard' },
-  { path: '/orders', icon: '📋', labelKey: 'menu.orders' },
-  { path: '/products', icon: '📦', labelKey: 'menu.products' },
-  { path: '/categories', icon: '🏷️', labelKey: 'menu.categories' },
-  { path: '/customers', icon: '👥', labelKey: 'menu.customers' },
-  { path: '/finance', icon: '💰', labelKey: 'menu.finance' },
-  { path: '/distribution', icon: '🤝', labelKey: 'menu.distribution' },
-  { path: '/admin-users', icon: '🔐', labelKey: 'menu.adminUsers' },
-  { path: '/permissions', icon: '🛡️', labelKey: 'menu.permissions' },
-  { path: '/banners', icon: '🖼️', labelKey: 'menu.banners' },
-  { path: '/site-info', icon: '⚙️', labelKey: 'menu.siteInfo' }
+  { path: '/', icon: '📊', labelKey: 'menu.dashboard', permission: 'dashboard' },
+  { path: '/orders', icon: '📋', labelKey: 'menu.orders', permission: 'order_manage' },
+  { path: '/products', icon: '📦', labelKey: 'menu.products', permission: 'product_manage' },
+  { path: '/categories', icon: '🏷️', labelKey: 'menu.categories', permission: 'category_manage' },
+  { path: '/customers', icon: '👥', labelKey: 'menu.customers', permission: 'customer_manage' },
+  { path: '/finance', icon: '💰', labelKey: 'menu.finance', permission: 'price_manage' },
+  { path: '/distribution', icon: '🤝', labelKey: 'menu.distribution', permission: 'distribution_manage' },
+  { path: '/admin-users', icon: '🔐', labelKey: 'menu.adminUsers', permission: 'admin_user_manage' },
+  { path: '/permissions', icon: '🛡️', labelKey: 'menu.permissions', permission: 'permission_config' },
+  { path: '/banners', icon: '🖼️', labelKey: 'menu.banners', permission: 'banner_manage' },
+  { path: '/site-info', icon: '⚙️', labelKey: 'menu.siteInfo', permission: 'permission_config' }
 ];
 
 export default function Layout() {
   const { t } = useTranslation();
   const location = useLocation();
-  const { admin, logout } = useAdminStore();
+  const { admin, logout, permissions, isSuperadmin, fetchPermissions } = useAdminStore();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    // 页面加载时获取权限
+    if (permissions.length === 0) {
+      fetchPermissions();
+    }
+  }, [permissions.length, fetchPermissions]);
+
+  // 过滤菜单 - 根据权限显示
+  const getMenuItems = () => {
+    // 超级管理员显示所有菜单
+    if (isSuperadmin) {
+      return menuItems;
+    }
+    
+    // 其他角色根据权限过滤
+    return menuItems.filter(item => {
+      return permissions.includes(item.permission);
+    });
+  };
 
   const handleLogout = () => {
     if (confirm(t('common.confirmLogout'))) {
@@ -45,7 +65,7 @@ export default function Layout() {
 
         {/* 菜单 */}
         <nav className="flex-1 py-4">
-          {menuItems.map(item => (
+          {getMenuItems().map(item => (
             <Link
               key={item.path}
               to={item.path}
