@@ -133,57 +133,7 @@ export default function UserCenter() {
         </div>
       </div>
 
-      {isPromoter && (
-        <div className="bg-white mx-4 mt-2 rounded-lg p-2">
-          <div className="flex items-center justify-between mb-1">
-            <h3 className="text-sm font-medium text-gray-800">邀请客户</h3>
-            <button
-              onClick={copyInviteLink}
-              className="text-xs py-1 px-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-            >
-              复制链接
-            </button>
-          </div>
-
-          {inviteData ? (
-            <div className="text-xs">
-              <div className="text-gray-500 mb-1">邀请码: <span className="text-orange-500 font-medium">{inviteData.promoter_code}</span></div>
-              <div className="text-gray-600 break-all">链接: <span className="text-gray-800">{inviteData.invite_link}</span></div>
-            </div>
-          ) : (
-            <div className="text-xs text-center py-2 text-gray-500">加载中...</div>
-          )}
-          
-          <Link to="/customers" className="mt-3 block text-center py-2 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium">
-            📊 查看客户与收益
-          </Link>
-        </div>
-      )}
-
-      {isUser && (
-        <div className="bg-white mt-3 mx-4 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-gray-800">申请成为推广员</h3>
-              <p className="text-xs text-gray-500 mt-1">绑定客户，获得订单利润分成</p>
-            </div>
-            {upgradeStatus.length > 0 && upgradeStatus[0].status === 'pending' ? (
-              <span className="text-sm text-orange-500">审核中...</span>
-            ) : (
-              <button
-                onClick={handleApplyUpgrade}
-                disabled={loading}
-                className="px-4 py-2 bg-orange-500 text-white text-sm rounded-lg disabled:opacity-50"
-              >
-                {loading ? '申请中...' : '立即申请'}
-              </button>
-            )}
-          </div>
-          {upgradeStatus.length > 0 && upgradeStatus[0].status === 'rejected' && (
-            <p className="text-xs text-red-500 mt-2">上次申请被拒绝，可重新申请</p>
-          )}
-        </div>
-      )}
+      {/* 分销模块已隐藏 */}
 
       {isOperator && (
         <div className="bg-white mt-3 mx-4 rounded-xl p-4">
