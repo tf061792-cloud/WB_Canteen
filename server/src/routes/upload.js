@@ -2,7 +2,6 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const sharp = require('sharp');
 const router = express.Router();
 
 // 确保上传目录存在
@@ -11,15 +10,18 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 图片尺寸配置
-const SIZE_CONFIG = {
-  small: { width: 150, height: 150, quality: 75 },
-  medium: { width: 400, height: 400, quality: 80 },
-  large: { width: 800, height: 800, quality: 85 }
-};
-
-// 配置存储 - 使用内存存储以便处理
-const storage = multer.memoryStorage();
+// 配置存储 - 直接存储到磁盘
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    // 生成唯一文件名
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  }
+});
 
 // 文件过滤
 const fileFilter = (req, file, cb) => {
@@ -34,73 +36,30 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB限制（处理前可能较大）
+    fileSize: 10 * 1024 * 1024 // 10MB限制
   }
 });
 
-// 图片优化处理函数
-async function processImage(buffer, filename, size = 'medium') {
-  const config = SIZE_CONFIG[size] || SIZE_CONFIG.medium;
-  const ext = path.extname(filename).toLowerCase();
-  const baseName = path.basename(filename, ext);
-  const outputFilename = `${baseName}_${size}_${Date.now()}.jpg`;
-  const outputPath = path.join(uploadDir, outputFilename);
-  
-  const info = await sharp(buffer)
-    .resize({
-      width: config.width,
-      height: config.height,
-      fit: 'inside',
-      withoutEnlargement: true
-    })
-    .jpeg({ quality: config.quality, progressive: true })
-    .toFile(outputPath);
-  
-  return {
-    filename: outputFilename,
-    path: `/uploads/${outputFilename}`,
-    size: info.size,
-    width: info.width,
-    height: info.height
-  };
-}
-
-// 单张图片上传（带优化）
-router.post('/', upload.single('image'), async (req, res) => {
+// 单张图片上传（简化版）
+router.post('/', upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ code: 400, message: '没有上传文件' });
     }
     
-    const originalSize = req.file.size;
-    const results = {};
+    const imageUrl = `/uploads/${req.file.filename}`;
     
-    // 生成多种尺寸
-    for (const sizeName of ['small', 'medium', 'large']) {
-      results[sizeName] = await processImage(req.file.buffer, req.file.originalname, sizeName);
-    }
-    
-    // 默认返回medium尺寸
-    const mediumResult = results.medium;
-    const savedBytes = originalSize - mediumResult.size;
-    const compressionRatio = ((savedBytes / originalSize) * 100).toFixed(1);
-    
-    console.log(`📷 图片上传优化: ${req.file.originalname}`);
-    console.log(`   原始大小: ${(originalSize / 1024).toFixed(1)} KB`);
-    console.log(`   优化后: ${(mediumResult.size / 1024).toFixed(1)} KB`);
-    console.log(`   压缩率: ${compressionRatio}%`);
+    console.log(`📷 图片上传: ${req.file.originalname}`);
+    console.log(`   文件大小: ${(req.file.size / 1024).toFixed(1)} KB`);
     
     res.json({
       code: 200,
       message: '上传成功',
       data: {
-        url: mediumResult.path,
-        filename: mediumResult.filename,
+        url: imageUrl,
+        filename: req.file.filename,
         originalname: req.file.originalname,
-        originalSize: originalSize,
-        optimizedSize: mediumResult.size,
-        compressionRatio: `${compressionRatio}%`,
-        sizes: results
+        size: req.file.size
       }
     });
   } catch (error) {
@@ -109,48 +68,31 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
-// 批量图片上传（带优化）
-router.post('/batch', upload.array('images', 50), async (req, res) => {
+// 批量图片上传（简化版）
+router.post('/batch', upload.array('images', 50), (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ code: 400, message: '没有上传文件' });
     }
     
-    const results = [];
-    let totalOriginalSize = 0;
-    let totalOptimizedSize = 0;
+    const results = req.files.map(file => ({
+      url: `/uploads/${file.filename}`,
+      filename: file.filename,
+      originalname: file.originalname,
+      size: file.size
+    }));
     
-    for (const file of req.files) {
-      totalOriginalSize += file.size;
-      
-      const mediumResult = await processImage(file.buffer, file.originalname, 'medium');
-      totalOptimizedSize += mediumResult.size;
-      
-      results.push({
-        url: mediumResult.path,
-        filename: mediumResult.filename,
-        originalname: file.originalname,
-        originalSize: file.size,
-        optimizedSize: mediumResult.size,
-        compressionRatio: `${(((file.size - mediumResult.size) / file.size) * 100).toFixed(1)}%`
-      });
-    }
+    const totalSize = req.files.reduce((sum, file) => sum + file.size, 0);
     
-    const overallCompression = (((totalOriginalSize - totalOptimizedSize) / totalOriginalSize) * 100).toFixed(1);
-    
-    console.log(`📷 批量上传优化: ${results.length} 张图片`);
-    console.log(`   总原始大小: ${(totalOriginalSize / 1024).toFixed(1)} KB`);
-    console.log(`   总优化后: ${(totalOptimizedSize / 1024).toFixed(1)} KB`);
-    console.log(`   平均压缩率: ${overallCompression}%`);
+    console.log(`📷 批量上传: ${results.length} 张图片`);
+    console.log(`   总大小: ${(totalSize / 1024).toFixed(1)} KB`);
     
     res.json({
       code: 200,
       message: `成功上传 ${results.length} 张图片`,
       data: {
         files: results,
-        totalOriginalSize,
-        totalOptimizedSize,
-        overallCompression: `${overallCompression}%`
+        totalSize
       }
     });
   } catch (error) {

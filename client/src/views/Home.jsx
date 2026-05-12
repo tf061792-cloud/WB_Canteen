@@ -98,7 +98,7 @@ export default function Home() {
 
   const searchResults = searchQuery ? filteredProducts : [];
 
-  // 处理图片URL - 根据场景选择合适的图片尺寸
+  // 处理图片URL
   const getImageUrl = (url, size = 'medium') => {
     if (!url) return '';
     
@@ -106,27 +106,6 @@ export default function Home() {
     
     // 本地图片需要加上完整的API前缀
     if (url.startsWith('/uploads/')) {
-      // 检查是否已经包含尺寸标识
-      if (url.includes('_small_') || url.includes('_medium_') || url.includes('_large_')) {
-        // 如果已有尺寸标识，直接返回
-        return `${API_BASE_URL}${url}`;
-      }
-      
-      // 根据场景选择合适的尺寸
-      const sizeSuffix = {
-        small: '_small',
-        medium: '_medium',
-        large: '_large'
-      }[size] || '_medium';
-      
-      // 在文件名中插入尺寸标识
-      const extIndex = url.lastIndexOf('.');
-      if (extIndex > -1) {
-        const baseUrl = url.substring(0, extIndex);
-        const ext = url.substring(extIndex);
-        return `${API_BASE_URL}${baseUrl}${sizeSuffix}${ext}`;
-      }
-      
       return `${API_BASE_URL}${url}`;
     }
     
