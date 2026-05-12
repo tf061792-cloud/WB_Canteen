@@ -26,7 +26,7 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-gray-50 flex flex-col pb-16">
         {/* 顶部 */}
         <div className="bg-white p-4 flex items-center justify-between sticky top-0 z-10">
           <Link to="/" className="text-2xl">←</Link>
@@ -44,6 +44,9 @@ export default function Cart() {
             去逛逛
           </Link>
         </div>
+
+        {/* 底部导航栏 */}
+        <BottomNav />
       </div>
     );
   }

@@ -3,18 +3,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { productAPI, bannerAPI } from '../api/index';
 import { useCartStore } from '../stores/cartStore';
 import { useUserStore } from '../stores/userStore';
+import { useProductStore } from '../stores/productStore';
 import PlaceholderImage from '../components/PlaceholderImage';
 
 export default function Home() {
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [banners, setBanners] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const { addItem, itemCount } = useCartStore();
   const { isLoggedIn, user } = useUserStore();
+  const { 
+    categories, 
+    products, 
+    banners, 
+    setData, 
+    isCacheValid, 
+    clearCache 
+  } = useProductStore();
   const navigate = useNavigate();
   const categoryRefs = useRef({});
   const searchInputRef = useRef(null);
@@ -28,8 +34,16 @@ export default function Home() {
     loadData();
   }, []);
 
+  // 初始化 activeCategory
+  useEffect(() => {
+    if (categories.length > 0 && !activeCategory) {
+      setActiveCategory(categories[0].id);
+    }
+  }, [categories, activeCategory]);
+
   // 刷新数据
   const handleRefresh = () => {
+    clearCache(); // 清除缓存
     loadData();
   };
 
@@ -39,6 +53,13 @@ export default function Home() {
 
   const loadData = async () => {
     try {
+      // 检查缓存是否有效
+      if (isCacheValid() && categories.length > 0) {
+        console.log('[DEBUG] 使用缓存数据');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       const [catRes, prodRes, bannerRes] = await Promise.all([
         productAPI.getCategories(),
@@ -46,23 +67,18 @@ export default function Home() {
         bannerAPI.getBanners()
       ]);
 
-      if (catRes.code === 200) {
-        setCategories(catRes.data);
-        if (catRes.data.length > 0) {
-          setActiveCategory(catRes.data[0].id);
-        }
-      }
-      if (prodRes.code === 200) {
-        setProducts(prodRes.data);
-      }
-      if (bannerRes.code === 200) {
-        console.log('[DEBUG] Banners loaded:', bannerRes.data);
-        setBanners(bannerRes.data);
+      if (catRes.code === 200 && prodRes.code === 200 && bannerRes.code === 200) {
+        console.log('[DEBUG] 从 API 加载数据并缓存');
+        setData(catRes.data, prodRes.data, bannerRes.data);
       } else {
-        console.error('[DEBUG] Banner API error:', bannerRes);
+        console.error('[DEBUG] API 返回错误:', { catRes, prodRes, bannerRes });
       }
     } catch (error) {
       console.error('加载数据失败:', error);
+      // 如果加载失败但有缓存，使用缓存
+      if (categories.length > 0) {
+        console.log('[DEBUG] 使用缓存数据作为备用');
+      }
     } finally {
       setLoading(false);
     }
