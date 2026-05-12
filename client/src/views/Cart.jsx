@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../stores/cartStore';
+import BottomNav from '../components/BottomNav';
 
   // 处理图片URL - 本地图片特殊处理
   const getImageUrl = (url) => {
@@ -48,7 +49,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-36">
       {/* 顶部 */}
       <div className="bg-white p-4 flex items-center justify-between sticky top-0 z-10">
         <Link to="/" className="text-2xl">←</Link>
@@ -132,7 +133,7 @@ export default function Cart() {
       </div>
 
       {/* 底部结算栏 */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t border-gray-200 p-4 flex items-center gap-4">
+      <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t border-gray-200 p-4 flex items-center gap-4 z-40">
         <div className="flex-1">
           <span className="text-gray-500">合计：</span>
           <span className="text-orange-500 font-bold text-xl">
@@ -147,6 +148,9 @@ export default function Cart() {
           去结算({items.length})
         </button>
       </div>
+
+      {/* 底部导航栏 */}
+      <BottomNav />
     </div>
   );
 }
