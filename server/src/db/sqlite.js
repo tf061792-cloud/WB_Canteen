@@ -411,6 +411,32 @@ async function initDatabase() {
     console.log('✅ 配货员账号已存在');
   }
 
+  // 更新超级管理员账号为 adminCHJ
+  console.log('🔄 Updating super admin account...');
+  
+  // 检查 adminCHJ 是否存在
+  const adminCHJExists = db.prepare('SELECT id FROM admins WHERE username = ?').get('adminCHJ');
+  
+  if (!adminCHJExists) {
+    // 创建 adminCHJ
+    const hashedPassword = bcrypt.hashSync('647733', 10);
+    db.prepare('INSERT INTO admins (username, password, nickname, role, status) VALUES (?, ?, ?, ?, ?)')
+      .run('adminCHJ', hashedPassword, '超级管理员', 'superadmin', 1);
+    console.log('✅ adminCHJ account created');
+  } else {
+    // 更新 adminCHJ 的密码
+    const hashedPassword = bcrypt.hashSync('647733', 10);
+    db.prepare('UPDATE admins SET password = ? WHERE username = ?').run(hashedPassword, 'adminCHJ');
+    console.log('✅ adminCHJ account password updated');
+  }
+  
+  // 删除旧的 admin 账号
+  const oldAdminExists = db.prepare('SELECT id FROM admins WHERE username = ?').get('admin');
+  if (oldAdminExists) {
+    db.prepare('DELETE FROM admins WHERE username = ?').run('admin');
+    console.log('✅ Old admin account removed');
+  }
+  
   db.save();
   console.log('✅ 数据库初始化数据保存完成');
 
