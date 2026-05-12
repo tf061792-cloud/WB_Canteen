@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const compression = require('compression');
 const { initDatabase } = require('./db/sqlite');
 
 // 导入路由
@@ -30,6 +31,20 @@ const app = express();
 const PORT = process.env.PORT || 3006;
 
 // 中间件
+// Gzip 压缩 - 必须放在其他中间件之前
+app.use(compression({
+  threshold: 1024, // 大于1KB才压缩
+  level: 6, // 压缩级别 (1-9)，6是平衡值
+  filter: (req, res) => {
+    // 只压缩特定类型的响应
+    const contentType = res.getHeader('Content-Type');
+    if (contentType) {
+      return /text|application\/json|application\/javascript/.test(contentType);
+    }
+    return true;
+  }
+}));
+
 const allowedOrigins = [
   'https://wbcanteen-admin.vercel.app',
   'https://wbcanteen-client.vercel.app',

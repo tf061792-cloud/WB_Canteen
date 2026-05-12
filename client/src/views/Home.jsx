@@ -98,23 +98,50 @@ export default function Home() {
 
   const searchResults = searchQuery ? filteredProducts : [];
 
-  // 处理图片URL - 本地图片特殊处理，外部图片处理CORS问题
-  const getImageUrl = (url) => {
+  // 处理图片URL - 根据场景选择合适的图片尺寸
+  const getImageUrl = (url, size = 'medium') => {
     if (!url) return '';
+    
+    const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+    
     // 本地图片需要加上完整的API前缀
     if (url.startsWith('/uploads/')) {
-      const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://wbcanteen-production.up.railway.app';
+      // 检查是否已经包含尺寸标识
+      if (url.includes('_small_') || url.includes('_medium_') || url.includes('_large_')) {
+        // 如果已有尺寸标识，直接返回
+        return `${API_BASE_URL}${url}`;
+      }
+      
+      // 根据场景选择合适的尺寸
+      const sizeSuffix = {
+        small: '_small',
+        medium: '_medium',
+        large: '_large'
+      }[size] || '_medium';
+      
+      // 在文件名中插入尺寸标识
+      const extIndex = url.lastIndexOf('.');
+      if (extIndex > -1) {
+        const baseUrl = url.substring(0, extIndex);
+        const ext = url.substring(extIndex);
+        return `${API_BASE_URL}${baseUrl}${sizeSuffix}${ext}`;
+      }
+      
       return `${API_BASE_URL}${url}`;
     }
+    
     if (url.startsWith('/api/')) return url;
     
-    // 处理 Google Drive 图片的 CORS 问题
+    // 处理 Google Drive 图片的 CORS 问题并添加尺寸参数
     if (url.includes('drive.google.com/uc?export=view&id=')) {
-      // 提取文件ID
       const match = url.match(/id=([^&]+)/);
       if (match && match[1]) {
-        // 使用 Googleusercontent 格式
-        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+        const sizeParams = {
+          small: '=w150-h150',
+          medium: '=w400-h400',
+          large: '=w800-h800'
+        };
+        return `https://lh3.googleusercontent.com/d/${match[1]}${sizeParams[size] || sizeParams.medium}`;
       }
     }
     
@@ -123,9 +150,10 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      <div className="bg-white shadow-sm z-50">
-        <div className="flex items-center px-3 py-2">
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* 顶部导航栏 */}
+      <header className="bg-white shadow-sm z-50 sticky top-0">
+        <div className="max-w-[480px] mx-auto flex items-center px-3 py-2">
           <Link to="/user" className="w-10 h-10 flex items-center justify-center">
             {isLoggedIn ? (
               <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-medium">
@@ -173,7 +201,7 @@ export default function Home() {
             className="w-10 h-10 flex items-center justify-center mr-2"
             title="刷新数据"
           >
-            <svg className="w-4 h-4 text-gray-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
@@ -186,7 +214,7 @@ export default function Home() {
             )}
           </Link>
         </div>
-      </div>
+      </header>
 
       {banners.length > 0 && (
         <div className="bg-white px-3 py-2">
@@ -364,37 +392,41 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-white border-t border-gray-200 flex-shrink-0">
-        <div className="flex max-w-[480px] mx-auto">
-          <Link to="/" className="flex-1 py-2 flex flex-col items-center text-orange-500">
-            <span className="text-xl">🏠</span>
+      {/* 底部导航 */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div className="max-w-[480px] mx-auto flex">
+          <Link to="/" className="flex-1 py-3 flex flex-col items-center text-orange-500">
+            <span className="text-lg">🏠</span>
             <span className="text-xs mt-0.5">首页</span>
           </Link>
-          <Link to="/cart" className="flex-1 py-2 flex flex-col items-center text-gray-500 relative">
-            <span className="text-xl">🛒</span>
+          <Link to="/cart" className="flex-1 py-3 flex flex-col items-center text-gray-500 relative">
+            <span className="text-lg">🛒</span>
             <span className="text-xs mt-0.5">购物车</span>
             {itemCount > 0 && (
-              <span className="absolute top-1 right-1/4 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+              <span className="absolute top-2 right-1/4 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
                 {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}
           </Link>
-          <Link to="/order/list" className="flex-1 py-2 flex flex-col items-center text-gray-500">
-            <span className="text-xl">📋</span>
+          <Link to="/order/list" className="flex-1 py-3 flex flex-col items-center text-gray-500">
+            <span className="text-lg">📋</span>
             <span className="text-xs mt-0.5">订单</span>
           </Link>
           {isPromoter && (
-            <Link to="/customers" className="flex-1 py-2 flex flex-col items-center text-gray-500">
-              <span className="text-xl">👥</span>
+            <Link to="/customers" className="flex-1 py-3 flex flex-col items-center text-gray-500">
+              <span className="text-lg">👥</span>
               <span className="text-xs mt-0.5">客户</span>
             </Link>
           )}
-          <Link to="/user" className="flex-1 py-2 flex flex-col items-center text-gray-500">
-            <span className="text-xl">👤</span>
+          <Link to="/user" className="flex-1 py-3 flex flex-col items-center text-gray-500">
+            <span className="text-lg">👤</span>
             <span className="text-xs mt-0.5">我的</span>
           </Link>
         </div>
-      </div>
+      </nav>
+      
+      {/* 底部安全区域 */}
+      <div className="h-16"></div>
     </div>
   );
 }

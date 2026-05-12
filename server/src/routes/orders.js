@@ -27,7 +27,7 @@ function generateOrderNo(orderTitle) {
   return orderNo;
 }
 
-// 用户端：创建订单
+// 用户端：创建订单（优化版 - 批量查询商品）
 router.post('/', userAuth, (req, res) => {
   const db = getDb();
   const { items, address, contact, phone, remark } = req.body;
@@ -41,17 +41,27 @@ router.post('/', userAuth, (req, res) => {
   }
 
   try {
+    // 优化：批量获取所有商品信息，避免循环查询
+    const productIds = items.map(item => item.product_id);
+    const placeholders = productIds.map(() => '?').join(',');
+    
+    const products = db.prepare(`
+      SELECT * FROM products 
+      WHERE id IN (${placeholders}) AND status = "active"
+    `).all(...productIds);
+    
+    // 构建商品映射
+    const productMap = new Map(products.map(p => [p.id, p]));
+
     // 计算订单总金额
     let total = 0;
     const orderItems = [];
 
     for (const item of items) {
-      const product = db.prepare(
-        'SELECT * FROM products WHERE id = ? AND status = "active"'
-      ).get(item.product_id);
+      const product = productMap.get(item.product_id);
 
       if (!product) {
-        throw new Error(`商品不存在: ${item.product_id}`);
+        throw new Error(`商品不存在或已下架: ${item.product_id}`);
       }
 
       const subtotal = Number(product.price) * item.quantity;
@@ -116,7 +126,7 @@ router.post('/', userAuth, (req, res) => {
   }
 });
 
-// 用户端：获取订单列表
+// 用户端：获取订单列表（优化版 - 批量获取订单商品，避免N+1查询）
 router.get('/', userAuth, (req, res) => {
   try {
     const db = getDb();
@@ -145,39 +155,64 @@ router.get('/', userAuth, (req, res) => {
     }
     const countResult = db.prepare(countSql).get(...countParams);
 
-    // 为每个订单获取商品明细，同时获取商品的单位
-    const formattedOrders = orders.map(o => {
-      const items = db.prepare(`
+    // 优化：批量获取所有订单的商品，避免N+1查询
+    if (orders.length > 0) {
+      const orderIds = orders.map(o => o.id).join(',');
+      const allItems = db.prepare(`
         SELECT oi.*, p.unit as product_unit, p.name_th
         FROM order_items oi
         LEFT JOIN products p ON oi.product_id = p.id
-        WHERE oi.order_id = ?
-      `).all(o.id);
-      return {
-        ...o,
-        total: Number(o.total),
-        actual_cost: o.actual_cost ? Number(o.actual_cost) : null,
-        actual_amount: o.actual_amount ? Number(o.actual_amount) : null,
-        profit_amount: o.profit_amount ? Number(o.profit_amount) : null,
-        customs_fee: o.customs_fee ? Number(o.customs_fee) : null,
-        items: items.map(item => ({
-          ...item,
-          price: Number(item.price),
-          subtotal: Number(item.subtotal),
-          unit: item.unit || item.product_unit || '件'
-        }))
-      };
-    });
+        WHERE oi.order_id IN (${orderIds})
+      `).all();
 
-    res.json({
-      code: 200,
-      data: {
-        list: formattedOrders,
-        total: countResult.total,
-        page: parseInt(page),
-        pageSize: parseInt(pageSize)
-      }
-    });
+      // 构建订单ID到商品的映射
+      const itemsMap = new Map();
+      allItems.forEach(item => {
+        if (!itemsMap.has(item.order_id)) {
+          itemsMap.set(item.order_id, []);
+        }
+        itemsMap.get(item.order_id).push(item);
+      });
+
+      // 格式化订单
+      const formattedOrders = orders.map(o => {
+        const items = itemsMap.get(o.id) || [];
+        return {
+          ...o,
+          total: Number(o.total),
+          actual_cost: o.actual_cost ? Number(o.actual_cost) : null,
+          actual_amount: o.actual_amount ? Number(o.actual_amount) : null,
+          profit_amount: o.profit_amount ? Number(o.profit_amount) : null,
+          customs_fee: o.customs_fee ? Number(o.customs_fee) : null,
+          items: items.map(item => ({
+            ...item,
+            price: Number(item.price),
+            subtotal: Number(item.subtotal),
+            unit: item.unit || item.product_unit || '件'
+          }))
+        };
+      });
+
+      res.json({
+        code: 200,
+        data: {
+          list: formattedOrders,
+          total: countResult.total,
+          page: parseInt(page),
+          pageSize: parseInt(pageSize)
+        }
+      });
+    } else {
+      res.json({
+        code: 200,
+        data: {
+          list: [],
+          total: 0,
+          page: parseInt(page),
+          pageSize: parseInt(pageSize)
+        }
+      });
+    }
   } catch (error) {
     console.error('获取订单列表错误:', error);
     res.status(500).json({ code: 500, message: '服务器错误' });
