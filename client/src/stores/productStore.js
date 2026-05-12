@@ -30,12 +30,12 @@ export const useProductStore = create(
         });
       },
 
-      // 检查缓存是否有效（5分钟内有效）
+      // 检查缓存是否有效（1分钟内有效）
       isCacheValid: () => {
         const lastUpdated = get().lastUpdated;
         if (!lastUpdated) return false;
-        const fiveMinutes = 5 * 60 * 1000;
-        return (Date.now() - lastUpdated) < fiveMinutes;
+        const oneMinute = 1 * 60 * 1000;
+        return (Date.now() - lastUpdated) < oneMinute;
       },
 
       // 获取分类

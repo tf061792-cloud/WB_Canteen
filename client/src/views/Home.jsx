@@ -41,6 +41,22 @@ export default function Home() {
     }
   }, [categories, activeCategory]);
 
+  // 监听页面可见性，页面显示时进行静默更新
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[DEBUG] 页面可见，执行静默更新');
+        silentUpdate();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   // 刷新数据
   const handleRefresh = () => {
     clearCache(); // 清除缓存
@@ -51,16 +67,24 @@ export default function Home() {
     console.log('[DEBUG] Banners updated:', banners);
   }, [banners]);
 
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     try {
       // 检查缓存是否有效
       if (isCacheValid() && categories.length > 0) {
-        console.log('[DEBUG] 使用缓存数据');
-        setLoading(false);
-        return;
+        if (!silent) {
+          console.log('[DEBUG] 使用缓存数据');
+          setLoading(false);
+        }
+        // 如果是静默更新，即使有缓存也继续后台检查更新
+        if (!silent) {
+          return;
+        }
       }
 
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
+
       const [catRes, prodRes, bannerRes] = await Promise.all([
         productAPI.getCategories(),
         productAPI.getProducts(),
@@ -68,7 +92,7 @@ export default function Home() {
       ]);
 
       if (catRes.code === 200 && prodRes.code === 200 && bannerRes.code === 200) {
-        console.log('[DEBUG] 从 API 加载数据并缓存');
+        console.log(silent ? '[DEBUG] 静默更新数据' : '[DEBUG] 从 API 加载数据并缓存');
         setData(catRes.data, prodRes.data, bannerRes.data);
       } else {
         console.error('[DEBUG] API 返回错误:', { catRes, prodRes, bannerRes });
@@ -80,7 +104,18 @@ export default function Home() {
         console.log('[DEBUG] 使用缓存数据作为备用');
       }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
+    }
+  };
+
+  // 静默更新数据（后台检查是否有新版本）
+  const silentUpdate = async () => {
+    try {
+      await loadData(true);
+    } catch (error) {
+      console.error('静默更新失败:', error);
     }
   };
 
